@@ -1,0 +1,44 @@
+:root {
+  --bg:        #F7F4F0;
+  --bg2:       #EDE9E3;
+  --bg3:       #E4DED6;
+  --line:      #D8D2CA;
+
+  --text:      #2C2A28;
+  --text2:     #7A756E;
+  --text3:     #B0A99F;
+
+  --accent:    oklch(62% 0.09 42);
+  --accent-bg: oklch(95% 0.025 42);
+  --accent-dk: oklch(50% 0.09 42);
+
+  --green:     oklch(62% 0.09 140);
+  --green-bg:  oklch(96% 0.04 140);
+  --blue:      oklch(62% 0.09 220);
+  --blue-bg:   oklch(96% 0.04 220);
+  --red:       oklch(55% 0.12 15);
+  --red-bg:    oklch(97% 0.03 15);
+
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans:  'DM Sans', sans-serif;
+
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 18px;
+
+  --screen-pad: 24px;
+  --max-width:  420px;
+
+  --surface: white;
+}
+
+[data-theme="dark"] {
+  --bg:      #1E1C1A;
+  --bg2:     #2A2724;
+  --bg3:     #333028;
+  --line:    #3D3830;
+  --text:    #EDE9E3;
+  --text2:   #A09890;
+  --text3:   #706860;
+  --surface: #2A2724;
+}
