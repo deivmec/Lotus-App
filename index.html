@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#F7F4F0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Lotus" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/svg+xml" href="/Lotus-App/favicon.svg" />
+    <title>Lotus</title>
+    <script type="module" crossorigin src="/Lotus-App/assets/index-FfPazDnR.js"></script>
+    <link rel="stylesheet" crossorigin href="/Lotus-App/assets/index-DUJ5MuUL.css">
+  <link rel="manifest" href="/Lotus-App/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/Lotus-App/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+    <script>
+      (function(){
+        var t = localStorage.getItem('settings:theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        var a = localStorage.getItem('settings:accent');
+        if (a) {
+          try {
+            var p = JSON.parse(a);
+            var r = document.documentElement.style;
+            r.setProperty('--accent',    'oklch(62% 0.09 ' + p.hue + ')');
+            r.setProperty('--accent-bg', 'oklch(95% 0.025 ' + p.hue + ')');
+            r.setProperty('--accent-dk', 'oklch(50% 0.09 ' + p.hue + ')');
+          } catch(e) {}
+        }
+      })();
+    </script>
+  </body>
+</html>

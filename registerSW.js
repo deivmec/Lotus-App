@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/Lotus-App/sw.js', { scope: '/Lotus-App/' })})}
