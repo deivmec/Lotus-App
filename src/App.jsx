@@ -26,6 +26,7 @@ import Idiomas     from './screens/Idiomas';
 import LinksRapidos from './screens/LinksRapidos';
 import Capilar     from './screens/Capilar';
 import Perfil      from './screens/Perfil';
+import Busca       from './screens/Busca';
 
 const MAIN_TABS = ['home', 'tasks', 'pessoal', 'mais'];
 
@@ -46,6 +47,7 @@ const SUB_SCREENS = {
   links:        LinksRapidos,
   capilar:      Capilar,
   perfil:       Perfil,
+  busca:        Busca,
 };
 
 const Shell = ({ children, activeTab, onTabChange, subScreen, userName }) => {

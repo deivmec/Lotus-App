@@ -269,7 +269,8 @@ const StatsWidget = ({ size }) => {
 
 // ── Tarefas do dia ──
 const TarefasWidget = ({ onNav, size }) => {
-  const [tasks] = useStorage('tasks:items', []);
+  const [tasks, saveTasks] = useStorage('tasks:items', []);
+  const toggleTask = (id) => saveTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
   const maxItems = size === 'small' ? 0 : size === 'large' ? 8 : 4;
   const pending = tasks.filter(t => !t.done && (t.date === TODAY || !t.date));
 
@@ -293,13 +294,21 @@ const TarefasWidget = ({ onNav, size }) => {
         <div style={{ fontSize: 13, color: 'var(--green)', textAlign: 'center', padding: '16px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r)' }}>✓ Tudo em dia!</div>
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          {pending.slice(0, maxItems).map((t, i) => (
+          {pending.slice(0, maxItems).map((t, i) => {
+            const dotColor = t.priority === 'alta' ? 'var(--red)' : t.priority === 'baixa' ? 'var(--text3)' : 'var(--accent)';
+            return (
             <div key={t.id} style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: i < Math.min(pending.length, maxItems) - 1 ? '1px solid var(--line)' : 'none' }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: t.priority === 'alta' ? 'var(--red)' : t.priority === 'baixa' ? 'var(--line)' : 'var(--accent)', flexShrink: 0 }} />
+              <div
+                onClick={() => toggleTask(t.id)}
+                style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${dotColor}`, background: 'transparent', flexShrink: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = dotColor + '22'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+              />
               <div style={{ flex: 1, fontSize: 13, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.text}</div>
               {t.date && <span style={{ fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>{t.date.slice(5)}</span>}
             </div>
-          ))}
+            );
+          })}
           {pending.length > maxItems && (
             <div style={{ padding: '8px 14px', fontSize: 12, color: 'var(--text3)', textAlign: 'center' }}>+{pending.length - maxItems} mais</div>
           )}
@@ -951,7 +960,10 @@ const Home = ({ onNav, userName }) => {
   const dateStr = `${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
   const hour = now.getHours();
   const greet = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
-  const name = userName || 'você';
+  const [userProfile] = useStorage('auth:user', {});
+  const rawName = userName || userProfile?.name || userProfile?.username || '';
+  const firstName = rawName ? rawName.trim().split(/\s+/)[0] : '';
+  const name = firstName || 'você';
 
   const [rawConfig, saveConfig] = useStorage('home:widgets', DEFAULT_CONFIG);
   const config = rawConfig.map(normalize);
@@ -1008,6 +1020,13 @@ const Home = ({ onNav, userName }) => {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
+          <button
+            onClick={() => onNav('busca')}
+            style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--bg2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Buscar"
+          >
+            <Icon name="search" size={17} color="var(--text2)" />
+          </button>
           <button
             onClick={() => setShowPersonalize(true)}
             style={{ background: 'var(--bg2)', border: 'none', borderRadius: 'var(--r-sm)', padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text2)', fontFamily: 'var(--sans)', fontSize: 12, fontWeight: 500 }}

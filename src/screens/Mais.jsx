@@ -9,8 +9,7 @@ const SECTIONS = [
   { id: 'cofre',        icon: 'lock',       label: 'Cofre',                desc: 'Documentos e logins' },
   { id: 'viagem',       icon: 'plane',      label: 'Viagem',               desc: 'Bucket list e planos' },
   { id: 'conteudo',     icon: 'book',       label: 'Conteúdo',             desc: 'Livros, filmes, cursos' },
-  { id: 'portfolio',    icon: 'portfolio',  label: 'Portfólio',            desc: 'Projetos e trabalhos' },
-  { id: 'inspiracao',   icon: 'palette',    label: 'Inspiração',           desc: 'Moodboard e paletas' },
+  { id: 'inspiracao',   icon: 'palette',    label: 'Inspiração',           desc: 'Moodboard, quadros e paletas' },
   { id: 'utilitarios',  icon: 'calculator', label: 'Utilitários',          desc: 'Calculadora e conversor' },
   { id: 'notificacoes', icon: 'bell',       label: 'Notificações',         desc: 'Avisos urgentes' },
   { id: 'receitas',     icon: 'utensils',   label: 'Receitas',             desc: 'Suas receitas favoritas' },
@@ -21,9 +20,18 @@ const SECTIONS = [
 
 const Mais = ({ onNav }) => (
   <div className="screen" style={{ padding: '24px 24px 32px' }}>
-    <div style={{ marginBottom: 28 }}>
-      <div style={{ fontFamily: 'var(--serif)', fontSize: 28, color: 'var(--text)', lineHeight: 1.2 }}>Mais</div>
-      <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>Todas as seções</div>
+    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div>
+        <div style={{ fontFamily: 'var(--serif)', fontSize: 28, color: 'var(--text)', lineHeight: 1.2 }}>Mais</div>
+        <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>Todas as seções</div>
+      </div>
+      <button
+        onClick={() => onNav('busca')}
+        style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--surface)', border: '1px solid var(--line)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}
+        title="Pesquisar"
+      >
+        <Icon name="search" size={18} color="var(--text2)" />
+      </button>
     </div>
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

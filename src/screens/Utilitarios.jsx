@@ -147,15 +147,18 @@ const Utilitarios = ({ onBack }) => {
 
   // Contagem
   const [countdowns, saveCountdowns] = useStorage('utilitarios:countdowns', []);
+  const [events, saveEvents]         = useStorage('events:items', []);
   const [showCdModal, setShowCdModal] = useState(false);
   const [newCd, setNewCd] = useState({ label: '', date: '' });
 
   const addCountdown = () => {
     if (!newCd.label.trim() || !newCd.date) return;
-    saveCountdowns(cs => [...cs, { id: newId(), ...newCd }]);
+    const id = newId();
+    saveCountdowns(cs => [...cs, { id, ...newCd }]);
+    saveEvents(evs => [...evs, { id: newId(), title: `⏳ ${newCd.label}`, date: newCd.date, time: '00:00', category: 'contagem', color: 'oklch(65% 0.12 280)', sourceId: id }]);
     setNewCd({ label: '', date: '' });
     setShowCdModal(false);
-    toast('Contagem criada');
+    toast('Contagem criada e adicionada ao calendário');
   };
 
   const delCountdown = (id) => { saveCountdowns(cs => cs.filter(c => c.id !== id)); toast('Removido'); };
@@ -194,7 +197,7 @@ const Utilitarios = ({ onBack }) => {
                 const isZero = btn === '0';
                 const isClear = btn === 'C';
                 return (
-                  <button key={i} onClick={() => calcPress(btn)} style={{ padding: '18px', borderRadius: 'var(--r)', border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 18, fontWeight: 500, gridColumn: isZero ? 'span 2' : undefined, background: isEq ? 'var(--accent)' : isOper ? 'var(--accent-bg)' : isClear ? 'var(--bg3)' : 'white', color: isEq ? 'white' : isOper ? 'var(--accent)' : 'var(--text)', border: `1px solid ${isEq ? 'var(--accent)' : 'var(--line)'}`, transition: 'transform 0.1s' }}
+                  <button key={i} onClick={() => calcPress(btn)} style={{ padding: '18px', borderRadius: 'var(--r)', border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 18, fontWeight: 500, gridColumn: isZero ? 'span 2' : undefined, background: isEq ? 'var(--accent)' : isOper ? 'var(--accent-bg)' : isClear ? 'var(--bg3)' : 'var(--surface)', color: isEq ? 'white' : isOper ? 'var(--accent)' : 'var(--text)', border: `1px solid ${isEq ? 'var(--accent)' : 'var(--line)'}`, transition: 'transform 0.1s' }}
                     onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
                     onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
                     onTouchEnd={e => e.currentTarget.style.transform = 'scale(1)'}

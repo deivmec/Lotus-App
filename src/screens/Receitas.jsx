@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import BackHeader from '../components/BackHeader';
-import Checkbox from '../components/Checkbox';
 import TabSwitcher from '../components/TabSwitcher';
 import Modal from '../components/Modal';
 import Icon from '../components/Icon';
@@ -15,6 +14,27 @@ const TABS = [
   { id: 'cardapio', label: 'Cardápio' },
 ];
 
+const POSTIT = [
+  { id: 'yellow', light: '#FEF9C3', dark: '#3A3000', border: '#FCD34D' },
+  { id: 'green',  light: '#DCFCE7', dark: '#052E1A', border: '#6EE7B7' },
+  { id: 'blue',   light: '#DBEAFE', dark: '#0C1A3A', border: '#93C5FD' },
+  { id: 'pink',   light: '#FCE7F3', dark: '#3B0A28', border: '#F9A8D4' },
+  { id: 'purple', light: '#EDE9FE', dark: '#2A1A5A', border: '#C4B5FD' },
+  { id: 'peach',  light: '#FFEDD5', dark: '#431407', border: '#FDBA74' },
+  { id: 'mint',   light: '#CCFBF1', dark: '#042F2E', border: '#5EEAD4' },
+];
+
+const DEFAULT_COLOR = 'yellow';
+
+const getPostitStyle = (colorId) => {
+  const c = POSTIT.find(p => p.id === colorId) || POSTIT[0];
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    bg:     dark ? c.dark   : c.light,
+    border: dark ? c.border + '40' : c.border,
+  };
+};
+
 // ── Cardápio constants ──
 const DIAS = [
   { id: 'seg', label: 'Segunda-feira', short: 'Seg' },
@@ -27,10 +47,10 @@ const DIAS = [
 ];
 
 const REFEICOES = [
-  { id: 'cafe',   label: 'Café da manhã', emoji: '☕', color: 'oklch(96% 0.04 80)', textColor: 'oklch(48% 0.1 80)' },
-  { id: 'almoco', label: 'Almoço',        emoji: '🥗', color: 'var(--green-bg)',    textColor: 'var(--green)' },
-  { id: 'lanche', label: 'Lanche',        emoji: '🍎', color: 'var(--accent-bg)',   textColor: 'var(--accent-dk)' },
-  { id: 'jantar', label: 'Jantar',        emoji: '🍽️', color: 'var(--blue-bg)',     textColor: 'var(--blue)' },
+  { id: 'cafe',   label: 'Café da manhã', emoji: '☕', colorId: 'yellow' },
+  { id: 'almoco', label: 'Almoço',        emoji: '🥗', colorId: 'green' },
+  { id: 'lanche', label: 'Lanche',        emoji: '🍎', colorId: 'peach' },
+  { id: 'jantar', label: 'Jantar',        emoji: '🍽️', colorId: 'blue' },
 ];
 
 const TODAY_ID = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'][new Date().getDay()];
@@ -42,14 +62,12 @@ const DEFAULT_PLAN = Object.fromEntries(
 const Receitas = ({ onBack }) => {
   const [tab, setTab] = useState('receitas');
 
-  // ── Receitas state ──
   const [recipes, saveRecipes] = useStorage('receitas:items', []);
   const [catFilter, setCatFilter] = useState('todas');
   const [open, setOpen] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ nome: '', cat: 'salgado', tempo: '', porcoes: '', ingredientes: '', preparo: '', tags: '' });
+  const [form, setForm] = useState({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', ingredientes: '', preparo: '', tags: '' });
 
-  // ── Cardápio state ──
   const [plano, savePlano] = useStorage('cronograma:refeicoes', DEFAULT_PLAN);
   const [editModal, setEditModal] = useState(null);
   const [editVal, setEditVal] = useState('');
@@ -57,7 +75,6 @@ const Receitas = ({ onBack }) => {
 
   const toast = useToast();
 
-  // ── Receitas functions ──
   const filtered = recipes.filter(r => catFilter === 'todas' || r.cat === catFilter || (r.tags || []).includes(catFilter));
 
   const addRecipe = () => {
@@ -65,7 +82,7 @@ const Receitas = ({ onBack }) => {
     const ingredientes = form.ingredientes.split('\n').map(l => l.trim()).filter(Boolean).map(nome => ({ id: newId(), nome, done: false }));
     const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean);
     saveRecipes(rs => [...rs, { id: newId(), ...form, ingredientes, tags }]);
-    setForm({ nome: '', cat: 'salgado', tempo: '', porcoes: '', ingredientes: '', preparo: '', tags: '' });
+    setForm({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', ingredientes: '', preparo: '', tags: '' });
     setShowModal(false);
     toast('Receita adicionada');
   };
@@ -77,17 +94,15 @@ const Receitas = ({ onBack }) => {
     ));
   };
 
-  // ── Cardápio functions ──
   const openEdit = (dia, ref) => {
     const refeicao = REFEICOES.find(r => r.id === ref);
     setEditVal(plano[dia]?.[ref] || '');
-    setEditModal({ dia, ref, label: refeicao.label, emoji: refeicao.emoji });
+    setEditModal({ dia, ref, label: refeicao.label, emoji: refeicao.emoji, colorId: refeicao.colorId });
   };
 
   const saveEdit = () => {
     if (!editModal) return;
-    const { dia, ref } = editModal;
-    savePlano(p => ({ ...p, [dia]: { ...(p[dia] || {}), [ref]: editVal.trim() } }));
+    savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: editVal.trim() } }));
     setEditModal(null);
     toast('Salvo');
   };
@@ -95,11 +110,6 @@ const Receitas = ({ onBack }) => {
   const clearDay = (diaId) => {
     savePlano(p => ({ ...p, [diaId]: { cafe: '', almoco: '', lanche: '', jantar: '' } }));
     toast('Dia limpo');
-  };
-
-  const copyDay = (fromId, toId) => {
-    savePlano(p => ({ ...p, [toId]: { ...(plano[fromId] || {}) } }));
-    toast('Dia copiado');
   };
 
   const filledCount = (diaId) => {
@@ -126,9 +136,17 @@ const Receitas = ({ onBack }) => {
         {/* ── Tab: Receitas ── */}
         {tab === 'receitas' && (
           <div>
+            {/* Filtros de categoria */}
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 20, paddingBottom: 4 }}>
               {CATS.map(c => (
-                <button key={c} onClick={() => setCatFilter(c)} style={{ padding: '6px 14px', borderRadius: 20, border: `1.5px solid ${catFilter === c ? 'var(--accent)' : 'var(--line)'}`, background: catFilter === c ? 'var(--accent-bg)' : 'white', color: catFilter === c ? 'var(--accent-dk)' : 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
+                <button key={c} onClick={() => setCatFilter(c)} style={{
+                  padding: '6px 14px', borderRadius: 20,
+                  border: `1.5px solid ${catFilter === c ? 'var(--accent)' : 'var(--line)'}`,
+                  background: catFilter === c ? 'var(--accent-bg)' : 'var(--surface)',
+                  color: catFilter === c ? 'var(--accent-dk)' : 'var(--text2)',
+                  cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 500,
+                  whiteSpace: 'nowrap', textTransform: 'capitalize',
+                }}>
                   {c}
                 </button>
               ))}
@@ -140,44 +158,114 @@ const Receitas = ({ onBack }) => {
                 <div style={{ fontSize: 14 }}>Nenhuma receita ainda</div>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {filtered.map(recipe => (
-                  <div key={recipe.id} className="card" style={{ cursor: 'pointer' }} onClick={() => setOpen(open === recipe.id ? null : recipe.id)}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text)' }}>{recipe.nome}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 3 }}>
-                          {recipe.tempo && `⏱ ${recipe.tempo}`} {recipe.porcoes && `· 🍽 ${recipe.porcoes} porções`}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                        {(recipe.tags || []).slice(0, 2).map((t, i) => <span key={i} className="tag" style={{ background: 'var(--bg2)', color: 'var(--text3)' }}>{t}</span>)}
-                        <Icon name="chevronDown" size={16} color="var(--text3)" />
-                      </div>
-                    </div>
+              <div style={{ columns: 2, columnGap: 10, marginBottom: 16 }}>
+                {filtered.map(recipe => {
+                  const ps = getPostitStyle(recipe.color || DEFAULT_COLOR);
+                  const isOpen = open === recipe.id;
+                  return (
+                    <div
+                      key={recipe.id}
+                      onClick={() => setOpen(isOpen ? null : recipe.id)}
+                      style={{
+                        breakInside: 'avoid',
+                        marginBottom: 10,
+                        background: ps.bg,
+                        border: `1.5px solid ${ps.border}`,
+                        borderRadius: 'var(--r)',
+                        padding: '14px 12px 12px',
+                        cursor: 'pointer',
+                        boxShadow: '2px 3px 8px rgba(0,0,0,0.08)',
+                        position: 'relative',
+                        transition: 'box-shadow 0.15s',
+                      }}
+                    >
+                      {/* Linha decorativa no topo (post-it fold) */}
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: ps.border, borderRadius: '8px 8px 0 0' }} />
 
-                    {open === recipe.id && (
-                      <div style={{ marginTop: 16 }} onClick={e => e.stopPropagation()}>
-                        <div className="divider" style={{ marginBottom: 16 }} />
-                        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 10 }}>Ingredientes</div>
-                        {recipe.ingredientes?.map(ing => (
-                          <div key={ing.id} style={{ marginBottom: 8 }}>
-                            <Checkbox checked={ing.done} onToggle={() => toggleIngrediente(recipe.id, ing.id)}>{ing.nome}</Checkbox>
-                          </div>
-                        ))}
-                        {recipe.preparo && (
-                          <>
-                            <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text3)', margin: '16px 0 10px' }}>Modo de preparo</div>
-                            <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{recipe.preparo}</div>
-                          </>
-                        )}
-                        <button onClick={() => { saveRecipes(rs => rs.filter(r => r.id !== recipe.id)); setOpen(null); toast('Removida'); }} style={{ marginTop: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', fontSize: 13, fontFamily: 'var(--sans)', padding: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <Icon name="trash" size={14} color="var(--red)" /> Remover receita
-                        </button>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.3, marginBottom: 6 }}>
+                        {recipe.nome}
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {(recipe.tempo || recipe.porcoes) && (
+                        <div style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {recipe.tempo && <span>⏱ {recipe.tempo}</span>}
+                          {recipe.porcoes && <span>🍽 {recipe.porcoes}p</span>}
+                        </div>
+                      )}
+
+                      {recipe.cat && (
+                        <span style={{ display: 'inline-block', fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 10, background: 'rgba(0,0,0,0.08)', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+                          {recipe.cat}
+                        </span>
+                      )}
+
+                      {/* Preview dos ingredientes */}
+                      {!isOpen && recipe.ingredientes?.length > 0 && (
+                        <div style={{ fontSize: 11, color: 'var(--text3)', lineHeight: 1.5 }}>
+                          {recipe.ingredientes.slice(0, 3).map(i => i.nome).join(', ')}
+                          {recipe.ingredientes.length > 3 && ` +${recipe.ingredientes.length - 3}`}
+                        </div>
+                      )}
+
+                      {/* Conteúdo expandido */}
+                      {isOpen && (
+                        <div onClick={e => e.stopPropagation()}>
+                          <div style={{ height: 1, background: 'rgba(0,0,0,0.1)', margin: '10px 0' }} />
+
+                          {recipe.ingredientes?.length > 0 && (
+                            <>
+                              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 10 }}>Ingredientes</div>
+                              {recipe.ingredientes.map(ing => (
+                                <div
+                                  key={ing.id}
+                                  onClick={() => toggleIngrediente(recipe.id, ing.id)}
+                                  style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9, cursor: 'pointer' }}
+                                >
+                                  <div style={{
+                                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                                    border: `2px solid ${ing.done ? ps.border : 'rgba(0,0,0,0.22)'}`,
+                                    background: ing.done ? ps.border : 'transparent',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.18s',
+                                    boxShadow: ing.done ? `0 0 0 3px ${ps.border}30` : 'none',
+                                  }}>
+                                    {ing.done && (
+                                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                        <path d="M1 4L3.8 7L9 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    )}
+                                  </div>
+                                  <span style={{
+                                    fontSize: 12, lineHeight: 1.45, flex: 1,
+                                    color: ing.done ? 'rgba(0,0,0,0.3)' : 'var(--text)',
+                                    textDecoration: ing.done ? 'line-through' : 'none',
+                                    transition: 'all 0.18s',
+                                  }}>
+                                    {ing.nome}
+                                  </span>
+                                </div>
+                              ))}
+                            </>
+                          )}
+
+                          {recipe.preparo && (
+                            <>
+                              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text3)', margin: '12px 0 8px' }}>Modo de preparo</div>
+                              <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{recipe.preparo}</div>
+                            </>
+                          )}
+
+                          <button
+                            onClick={() => { saveRecipes(rs => rs.filter(r => r.id !== recipe.id)); setOpen(null); toast('Removida'); }}
+                            style={{ marginTop: 12, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', fontSize: 12, fontFamily: 'var(--sans)', padding: 0, display: 'flex', alignItems: 'center', gap: 5 }}
+                          >
+                            <Icon name="trash" size={13} color="var(--red)" /> Remover receita
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
             <button className="btn-add" onClick={() => setShowModal(true)}>
@@ -189,7 +277,6 @@ const Receitas = ({ onBack }) => {
         {/* ── Tab: Cardápio ── */}
         {tab === 'cardapio' && (
           <div>
-            {/* seletor de dia */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 24, overflowX: 'auto', paddingBottom: 4 }}>
               {DIAS.map(dia => {
                 const count = filledCount(dia.id);
@@ -213,7 +300,6 @@ const Receitas = ({ onBack }) => {
               })}
             </div>
 
-            {/* dia(s) expandido(s) */}
             {DIAS.filter(d => !openDay || d.id === openDay).map(dia => {
               const isToday = dia.id === TODAY_ID;
               const diaPlano = plano[dia.id] || {};
@@ -233,21 +319,28 @@ const Receitas = ({ onBack }) => {
                     {REFEICOES.map(ref => {
                       const valor = diaPlano[ref.id] || '';
                       const hasValue = !!valor;
+                      const ps = getPostitStyle(ref.colorId);
                       return (
                         <button
                           key={ref.id}
                           onClick={() => openEdit(dia.id, ref.id)}
-                          style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: hasValue ? ref.color : 'white', border: `1px solid ${hasValue ? 'transparent' : 'var(--line)'}`, borderRadius: 'var(--r)', cursor: 'pointer', fontFamily: 'var(--sans)', textAlign: 'left', transition: 'background 0.15s', width: '100%' }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
+                            background: hasValue ? ps.bg : 'var(--surface)',
+                            border: `1px solid ${hasValue ? ps.border : 'var(--line)'}`,
+                            borderRadius: 'var(--r)', cursor: 'pointer', fontFamily: 'var(--sans)',
+                            textAlign: 'left', transition: 'background 0.15s', width: '100%',
+                          }}
                         >
                           <span style={{ fontSize: 18, flexShrink: 0 }}>{ref.emoji}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: hasValue ? ref.textColor : 'var(--text3)', marginBottom: hasValue ? 2 : 0 }}>{ref.label}</div>
+                            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: hasValue ? 2 : 0 }}>{ref.label}</div>
                             {hasValue
                               ? <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{valor}</div>
                               : <div style={{ fontSize: 12, color: 'var(--text3)' }}>Toque para adicionar…</div>
                             }
                           </div>
-                          <Icon name={hasValue ? 'edit' : 'plus'} size={14} color={hasValue ? ref.textColor : 'var(--text3)'} />
+                          <Icon name={hasValue ? 'edit' : 'plus'} size={14} color="var(--text3)" />
                         </button>
                       );
                     })}
@@ -258,7 +351,7 @@ const Receitas = ({ onBack }) => {
                       <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 6 }}>Copiar este dia para:</div>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {DIAS.filter(d => d.id !== dia.id).map(d => (
-                          <button key={d.id} onClick={() => copyDay(dia.id, d.id)} style={{ padding: '4px 10px', borderRadius: 20, border: '1px solid var(--line)', background: 'white', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 11, fontWeight: 500 }}>
+                          <button key={d.id} onClick={() => { savePlano(p => ({ ...p, [d.id]: { ...(plano[dia.id] || {}) } })); toast('Dia copiado'); }} style={{ padding: '4px 10px', borderRadius: 20, border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 11, fontWeight: 500 }}>
                             {d.short}
                           </button>
                         ))}
@@ -270,7 +363,7 @@ const Receitas = ({ onBack }) => {
             })}
 
             {openDay && (
-              <button onClick={() => setOpenDay(null)} style={{ width: '100%', padding: '12px', marginTop: 8, borderRadius: 'var(--r)', border: '1px solid var(--line)', background: 'white', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 500 }}>
+              <button onClick={() => setOpenDay(null)} style={{ width: '100%', padding: '12px', marginTop: 8, borderRadius: 'var(--r)', border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 500 }}>
                 Ver semana completa
               </button>
             )}
@@ -282,6 +375,31 @@ const Receitas = ({ onBack }) => {
       <Modal open={showModal} onClose={() => setShowModal(false)} title="Nova receita">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome da receita" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
+
+          {/* Cor do post-it */}
+          <div>
+            <label style={{ fontSize: 12, color: 'var(--text2)', fontWeight: 500, display: 'block', marginBottom: 8 }}>Cor do post-it</label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {POSTIT.map(p => {
+                const ps = getPostitStyle(p.id);
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setForm(f => ({ ...f, color: p.id }))}
+                    style={{
+                      width: 32, height: 32, borderRadius: 8,
+                      background: ps.bg,
+                      border: `2.5px solid ${form.color === p.id ? 'var(--accent)' : ps.border}`,
+                      cursor: 'pointer',
+                      boxShadow: form.color === p.id ? '0 0 0 2px var(--accent)' : 'none',
+                      transition: 'all 0.15s',
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <select className="input" value={form.cat} onChange={e => setForm(f => ({ ...f, cat: e.target.value }))}>
               <option value="fit">Fit</option>
@@ -315,7 +433,7 @@ const Receitas = ({ onBack }) => {
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => { setEditVal(''); savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: '' } })); setEditModal(null); toast('Limpo'); }}
-              style={{ flex: 1, padding: '12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'white', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13 }}
+              style={{ flex: 1, padding: '12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13 }}
             >
               Limpar
             </button>

@@ -22,6 +22,7 @@ const Viagem = ({ onBack }) => {
   const [bucket, saveBucket] = useStorage('viagem:bucket', []);
   const [docs, saveDocs] = useStorage('viagem:docs', []);
   const [destinos, saveDestinos] = useStorage('viagem:destinos', []);
+  const [events, saveEvents] = useStorage('events:items', []);
   const [openDest, setOpenDest] = useState(null);
   const [newItemTexts, setNewItemTexts] = useState({});
   const [newLinkTexts, setNewLinkTexts] = useState({});
@@ -64,10 +65,30 @@ const Viagem = ({ onBack }) => {
   // Destinos
   const addDestino = () => {
     if (!newDestino.name.trim()) return;
-    saveDestinos(d => [...d, { id: newId(), ...newDestino, checklist: [], links: [] }]);
+    const id = newId();
+    saveDestinos(d => [...d, { id, ...newDestino, checklist: [], links: [] }]);
+
+    // Sync dates to calendar
+    const calEvents = [];
+    const title = `${newDestino.emoji || '✈️'} ${newDestino.name}`;
+    if (newDestino.dateStart) {
+      calEvents.push({ id: newId(), title: `${title} · ida`, date: newDestino.dateStart, time: '00:00', category: 'viagem', color: 'oklch(62% 0.09 60)', sourceId: id });
+    }
+    if (newDestino.dateEnd && newDestino.dateEnd !== newDestino.dateStart) {
+      calEvents.push({ id: newId(), title: `${title} · volta`, date: newDestino.dateEnd, time: '23:59', category: 'viagem', color: 'oklch(62% 0.09 60)', sourceId: id });
+    }
+    if (calEvents.length) saveEvents(evs => [...evs, ...calEvents]);
+
     setNewDestino({ name: '', emoji: '✈️', type: 'cidade', dateStart: '', dateEnd: '', notes: '' });
     setShowDestinoModal(false);
     toast('Destino criado');
+  };
+
+  const delDestino = (id) => {
+    saveDestinos(ds => ds.filter(d => d.id !== id));
+    saveEvents(evs => evs.filter(e => e.sourceId !== id));
+    if (openDest === id) setOpenDest(null);
+    toast('Removido');
   };
 
   const toggleDestinoItem = (destId, itemId) => {
@@ -175,7 +196,7 @@ const Viagem = ({ onBack }) => {
                   const days = daysUntilExpiry(doc.expiry);
                   const warning = days !== null && days < 90;
                   return (
-                    <div key={doc.id} className="card" style={{ borderColor: warning ? 'oklch(88% 0.05 15)' : 'var(--line)', background: warning ? 'oklch(99% 0.01 15)' : 'white' }}>
+                    <div key={doc.id} className="card" style={{ borderColor: warning ? 'oklch(88% 0.05 15)' : 'var(--line)', background: warning ? 'var(--red-bg)' : 'var(--surface)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <Icon name="compass" size={18} color={warning ? 'var(--red)' : 'var(--text2)'} />
                         <div style={{ flex: 1 }}>
@@ -216,9 +237,9 @@ const Viagem = ({ onBack }) => {
                   return (
                     <div key={dest.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
                       {/* Header da pasta */}
-                      <button
+                      <div
                         onClick={() => setOpenDest(isOpen ? null : dest.id)}
-                        style={{ width: '100%', padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--sans)', textAlign: 'left' }}
+                        style={{ width: '100%', padding: '14px 16px', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, fontFamily: 'var(--sans)', textAlign: 'left' }}
                       >
                         <span style={{ fontSize: 24, flexShrink: 0 }}>{dest.emoji || typeEmoji}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -232,14 +253,14 @@ const Viagem = ({ onBack }) => {
                         </div>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
                           <button
-                            onClick={e => { e.stopPropagation(); saveDestinos(ds => ds.filter(d => d.id !== dest.id)); if (openDest === dest.id) setOpenDest(null); toast('Removido'); }}
+                            onClick={e => { e.stopPropagation(); delDestino(dest.id); }}
                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4 }}
                           >
                             <Icon name="trash" size={14} />
                           </button>
                           <Icon name={isOpen ? 'chevronDown' : 'arrow'} size={14} color="var(--text3)" />
                         </div>
-                      </button>
+                      </div>
 
                       {/* Conteúdo expandido */}
                       {isOpen && (

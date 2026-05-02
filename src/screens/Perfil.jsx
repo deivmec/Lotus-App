@@ -17,10 +17,11 @@ const ACCENTS = [
 const EMOJI_LIST = ['🌸','🌿','🌙','⭐','🔥','💎','🌊','🌺','🍀','🎯','🦋','🌈','🎨','✨','🌻','💫','🍃','🌙','🌸','🦊','🐚','🌸','🎭','🏔️','🌅','🍄','🌾','🌴','🌵','🌹','🏵️','🌝'];
 
 const applyAccent = (hue) => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   const r = document.documentElement.style;
   r.setProperty('--accent',    `oklch(62% 0.09 ${hue})`);
-  r.setProperty('--accent-bg', `oklch(95% 0.025 ${hue})`);
-  r.setProperty('--accent-dk', `oklch(50% 0.09 ${hue})`);
+  r.setProperty('--accent-bg', dark ? `oklch(26% 0.05 ${hue})` : `oklch(95% 0.025 ${hue})`);
+  r.setProperty('--accent-dk', dark ? `oklch(72% 0.09 ${hue})` : `oklch(50% 0.09 ${hue})`);
 };
 
 const Row = ({ label, value, onPress }) => (
@@ -81,6 +82,15 @@ const Perfil = ({ onBack, onLogout, onUpdateUser }) => {
       document.documentElement.removeAttribute('data-theme');
       localStorage.setItem('settings:theme', 'light');
     }
+    // Re-aplica accent com luminosidade correta para o novo tema
+    try {
+      const stored = JSON.parse(localStorage.getItem('settings:accent'));
+      if (stored?.hue) {
+        const r = document.documentElement.style;
+        r.setProperty('--accent-bg', next ? `oklch(26% 0.05 ${stored.hue})` : `oklch(95% 0.025 ${stored.hue})`);
+        r.setProperty('--accent-dk', next ? `oklch(72% 0.09 ${stored.hue})` : `oklch(50% 0.09 ${stored.hue})`);
+      }
+    } catch {}
   };
 
   const selectAccent = (preset) => {

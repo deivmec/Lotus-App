@@ -33,12 +33,18 @@
 }
 
 [data-theme="dark"] {
-  --bg:      #1E1C1A;
-  --bg2:     #2A2724;
-  --bg3:     #333028;
-  --line:    #3D3830;
-  --text:    #EDE9E3;
-  --text2:   #A09890;
-  --text3:   #706860;
-  --surface: #2A2724;
+  --bg:        #1E1C1A;
+  --bg2:       #2A2724;
+  --bg3:       #333028;
+  --line:      #3D3830;
+  --text:      #EDE9E3;
+  --text2:     #A09890;
+  --text3:     #706860;
+  --surface:   #2A2724;
+
+  --accent-bg:  oklch(26% 0.05 42);
+  --accent-dk:  oklch(72% 0.09 42);
+  --green-bg:   oklch(23% 0.06 140);
+  --blue-bg:    oklch(23% 0.05 220);
+  --red-bg:     oklch(22% 0.07 15);
 }

@@ -16,7 +16,6 @@ const SUB_ITEMS = [
   { id: 'cofre',        label: 'Cofre',       icon: 'lock' },
   { id: 'viagem',       label: 'Viagem',      icon: 'plane' },
   { id: 'conteudo',     label: 'Conteúdo',    icon: 'book' },
-  { id: 'portfolio',    label: 'Portfólio',   icon: 'portfolio' },
   { id: 'inspiracao',   label: 'Inspiração',  icon: 'palette' },
   { id: 'utilitarios',  label: 'Utilitários', icon: 'calculator' },
   { id: 'notificacoes', label: 'Avisos',      icon: 'bell' },
