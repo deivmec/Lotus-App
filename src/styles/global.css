@@ -11,10 +11,14 @@
 
 html, body {
   height: 100%;
-  background: #1C1A18;
+  background: var(--bg);
   font-family: var(--sans);
   color: var(--text);
   overscroll-behavior: none;
+}
+
+@media (min-width: 461px) {
+  html, body { background: #1C1A18; }
 }
 
 #root {
@@ -36,7 +40,10 @@ html, body {
 }
 
 @media (max-width: 460px) {
-  .app-shell { width: 100%; }
+  .app-shell {
+    width: 100%;
+    padding-top: env(safe-area-inset-top);
+  }
   #root { align-items: stretch; }
 }
 
@@ -89,10 +96,10 @@ html, body {
 
 /* ── Screen transition ── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-.screen { animation: fadeUp 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+.screen { animation: fadeUp 0.18s ease; }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
