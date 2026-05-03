@@ -283,6 +283,8 @@ html, body {
   background: var(--bg);
   display: flex;
   padding: 8px 0 max(20px, env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 10;
 }
 .nav-item {
   flex: 1;
@@ -370,7 +372,7 @@ html, body {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   align-items: flex-end;
   justify-content: center;

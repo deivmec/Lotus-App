@@ -147,7 +147,7 @@ const Calendario = ({ onBack }) => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 20 }}>
           {cells.map((day, i) => {
             if (!day) return (
-              <div key={i} style={{ minHeight: 68, border: '1px solid transparent', borderRadius: 6 }} />
+              <div key={i} style={{ minHeight: 48, border: '1px solid transparent', borderRadius: 6 }} />
             );
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isToday = dateStr === today.toISOString().slice(0, 10);
@@ -160,13 +160,14 @@ const Calendario = ({ onBack }) => {
                 style={{
                   border: `1.5px solid ${isSel ? 'var(--accent)' : isToday ? 'var(--accent)' : 'var(--line)'}`,
                   borderRadius: 6,
-                  minHeight: 68,
-                  padding: '4px 3px 3px',
+                  minHeight: 48,
+                  padding: '4px 2px 3px',
                   background: isSel ? 'var(--accent-bg)' : isToday ? 'var(--bg2)' : 'var(--surface)',
                   cursor: 'pointer',
                   transition: 'background 0.15s, border-color 0.15s',
                   display: 'flex',
                   flexDirection: 'column',
+                  alignItems: 'center',
                   overflow: 'hidden',
                 }}
               >
@@ -175,32 +176,17 @@ const Calendario = ({ onBack }) => {
                   fontWeight: isToday || isSel ? 700 : 400,
                   color: isSel ? 'var(--accent)' : isToday ? 'var(--accent)' : 'var(--text)',
                   lineHeight: 1,
-                  textAlign: 'right',
-                  paddingRight: 2,
                   marginBottom: 3,
                 }}>
                   {day}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-                  {dayEvents.slice(0, 2).map((e, ei) => (
-                    <div key={ei} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <Sticker category={e.category} size={15} />
-                      <span style={{
-                        fontSize: 7.5,
-                        color: 'var(--text2)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        width: '100%',
-                        textAlign: 'center',
-                        lineHeight: 1.3,
-                        marginTop: 1,
-                      }}>{e.title}</span>
-                    </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', flex: 1 }}>
+                  {dayEvents.slice(0, 3).map((e, ei) => (
+                    <Sticker key={ei} category={e.category} size={13} />
                   ))}
-                  {dayEvents.length > 2 && (
-                    <div style={{ fontSize: 8, color: 'var(--text3)', textAlign: 'center', marginTop: 'auto' }}>
-                      +{dayEvents.length - 2}
+                  {dayEvents.length > 3 && (
+                    <div style={{ fontSize: 8, color: 'var(--text3)', width: '100%', textAlign: 'center' }}>
+                      +{dayEvents.length - 3}
                     </div>
                   )}
                 </div>
