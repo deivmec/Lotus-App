@@ -119,7 +119,7 @@ const Cofre = ({ onBack }) => {
                 setUnlocked(true); setPinInput(''); setPinError('');
               } else {
                 setPinError('PIN incorreto');
-                setTimeout(() => { setPinError(''); setPinInput(''); }, 800);
+                setPinInput('');
               }
             }
           }} />
