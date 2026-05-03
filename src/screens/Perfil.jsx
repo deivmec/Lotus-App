@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { get } from 'idb-keyval';
 import Icon from '../components/Icon';
 import { useToast } from '../components/Toast';
+import { useStorage } from '../hooks/useStorage';
 
 const ACCENTS = [
   { id: 'terra',   label: 'Terra',   hue: 42  },
@@ -52,6 +53,12 @@ const FieldModal = ({ title, children, onClose }) => (
 const Perfil = ({ onBack, onLogout, onUpdateUser }) => {
   const toast = useToast();
   const fileRef = useRef();
+  const [cofrePin, saveCofrePin] = useStorage('cofre:pin', null);
+  const [pinModal, setPinModal] = useState(null);
+  const [pinStep, setPinStep] = useState('enter');
+  const [pinA, setPinA] = useState('');
+  const [pinB, setPinB] = useState('');
+  const [pinError, setPinError] = useState('');
 
   const [user, setUser] = useState({ name: '', email: '', phone: '', password: '', photo: '', emoji: '' });
   const [darkMode, setDarkMode] = useState(() => document.documentElement.getAttribute('data-theme') === 'dark');
@@ -268,6 +275,20 @@ const Perfil = ({ onBack, onLogout, onUpdateUser }) => {
           </div>
         </div>
 
+        {/* Segurança */}
+        <div className="section-label" style={{ marginBottom: 8 }}>Segurança</div>
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r)', padding: '0 16px', marginBottom: 24 }}>
+          <Row
+            label="PIN do Cofre"
+            value={cofrePin ? 'Definido ••••' : 'Não definido'}
+            onPress={() => {
+              setPinA(''); setPinB(''); setPinError('');
+              setPinModal(cofrePin ? 'change' : 'set');
+              setPinStep(cofrePin ? 'current' : 'enter');
+            }}
+          />
+        </div>
+
         {/* Logout */}
         <button
           onClick={async () => { await onLogout(); }}
@@ -311,6 +332,90 @@ const Perfil = ({ onBack, onLogout, onUpdateUser }) => {
             <input className="input" type="password" placeholder="Confirmar nova senha" value={confPass} onChange={e => setConfPass(e.target.value)} />
           </div>
           <button className="btn-primary" style={{ marginTop: 12 }} onClick={savePassword}>Salvar</button>
+        </FieldModal>
+      )}
+
+      {/* PIN do Cofre modal */}
+      {pinModal && (
+        <FieldModal
+          title={pinModal === 'set' ? 'Criar PIN do Cofre' : pinModal === 'change' ? 'Alterar PIN do Cofre' : 'Remover PIN do Cofre'}
+          onClose={() => { setPinModal(null); setPinA(''); setPinB(''); setPinError(''); }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* set: enter */}
+            {pinModal === 'set' && pinStep === 'enter' && (<>
+              <div style={{ fontSize: 13, color: 'var(--text2)' }}>Digite um PIN de 4 dígitos</div>
+              <input className="input" type="number" inputMode="numeric" placeholder="• • • •" value={pinA}
+                onChange={e => setPinA(e.target.value.replace(/\D/g, '').slice(0, 4))} autoFocus
+                style={{ letterSpacing: '0.4em', fontSize: 22, textAlign: 'center' }} />
+              {pinError && <div style={{ fontSize: 12, color: 'var(--red)' }}>{pinError}</div>}
+              <button className="btn-primary" onClick={() => {
+                if (pinA.length < 4) { setPinError('O PIN deve ter 4 dígitos'); return; }
+                setPinError(''); setPinStep('confirm');
+              }}>Continuar</button>
+            </>)}
+
+            {/* set: confirm */}
+            {pinModal === 'set' && pinStep === 'confirm' && (<>
+              <div style={{ fontSize: 13, color: 'var(--text2)' }}>Confirme o PIN</div>
+              <input className="input" type="number" inputMode="numeric" placeholder="• • • •" value={pinB}
+                onChange={e => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))} autoFocus
+                style={{ letterSpacing: '0.4em', fontSize: 22, textAlign: 'center' }} />
+              {pinError && <div style={{ fontSize: 12, color: 'var(--red)' }}>{pinError}</div>}
+              <button className="btn-primary" onClick={() => {
+                if (pinB !== pinA) { setPinError('Os PINs não coincidem'); setPinB(''); return; }
+                saveCofrePin(pinA); setPinModal(null); toast('PIN do Cofre criado');
+              }}>Salvar PIN</button>
+              <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text2)', fontSize: 13, fontFamily: 'var(--sans)' }}
+                onClick={() => { setPinStep('enter'); setPinB(''); setPinError(''); }}>Voltar</button>
+            </>)}
+
+            {/* change: verify current */}
+            {pinModal === 'change' && pinStep === 'current' && (<>
+              <div style={{ fontSize: 13, color: 'var(--text2)' }}>PIN atual</div>
+              <input className="input" type="number" inputMode="numeric" placeholder="• • • •" value={pinA}
+                onChange={e => setPinA(e.target.value.replace(/\D/g, '').slice(0, 4))} autoFocus
+                style={{ letterSpacing: '0.4em', fontSize: 22, textAlign: 'center' }} />
+              {pinError && <div style={{ fontSize: 12, color: 'var(--red)' }}>{pinError}</div>}
+              <button className="btn-primary" onClick={() => {
+                if (pinA !== cofrePin) { setPinError('PIN incorreto'); setPinA(''); return; }
+                setPinError(''); setPinStep('enter'); setPinA('');
+              }}>Continuar</button>
+              <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', fontSize: 13, fontFamily: 'var(--sans)' }}
+                onClick={() => { setPinModal('remove'); setPinStep('current'); setPinA(''); setPinError(''); }}>
+                Remover PIN
+              </button>
+            </>)}
+
+            {/* change: new pin */}
+            {pinModal === 'change' && pinStep === 'enter' && (<>
+              <div style={{ fontSize: 13, color: 'var(--text2)' }}>Novo PIN</div>
+              <input className="input" type="number" inputMode="numeric" placeholder="• • • •" value={pinB}
+                onChange={e => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))} autoFocus
+                style={{ letterSpacing: '0.4em', fontSize: 22, textAlign: 'center' }} />
+              {pinError && <div style={{ fontSize: 12, color: 'var(--red)' }}>{pinError}</div>}
+              <button className="btn-primary" onClick={() => {
+                if (pinB.length < 4) { setPinError('O PIN deve ter 4 dígitos'); return; }
+                saveCofrePin(pinB); setPinModal(null); toast('PIN alterado');
+              }}>Salvar novo PIN</button>
+            </>)}
+
+            {/* remove: verify current */}
+            {pinModal === 'remove' && pinStep === 'current' && (<>
+              <div style={{ fontSize: 13, color: 'var(--text2)' }}>Digite o PIN atual para remover</div>
+              <input className="input" type="number" inputMode="numeric" placeholder="• • • •" value={pinA}
+                onChange={e => setPinA(e.target.value.replace(/\D/g, '').slice(0, 4))} autoFocus
+                style={{ letterSpacing: '0.4em', fontSize: 22, textAlign: 'center' }} />
+              {pinError && <div style={{ fontSize: 12, color: 'var(--red)' }}>{pinError}</div>}
+              <button style={{ width: '100%', padding: 15, background: 'var(--red)', color: 'white', border: 'none', borderRadius: 'var(--r-sm)', fontFamily: 'var(--sans)', fontSize: 15, fontWeight: 500, cursor: 'pointer' }}
+                onClick={() => {
+                  if (pinA !== cofrePin) { setPinError('PIN incorreto'); setPinA(''); return; }
+                  saveCofrePin(null); setPinModal(null); toast('PIN removido');
+                }}>Remover PIN</button>
+              <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text2)', fontSize: 13, fontFamily: 'var(--sans)' }}
+                onClick={() => setPinModal(null)}>Cancelar</button>
+            </>)}
+          </div>
         </FieldModal>
       )}
 

@@ -90,6 +90,15 @@ const NoteBodyEditor = ({ noteRef, initialHtml, onSave, colorDot, autoFocus }) =
 
 const RICH_COLORS = ['#1a1a1a','#555555','#e53935','#fb8c00','#f9a825','#43a047','#1e88e5','#7b1fa2','#f06292','#00897b'];
 
+const FONTS = [
+  { label: 'Georgia',  value: 'Georgia' },
+  { label: 'Times',    value: 'Times New Roman' },
+  { label: 'Sans',     value: 'Arial' },
+  { label: 'Mono',     value: 'Courier New' },
+  { label: 'Instrmt',  value: 'Instrument Serif' },
+  { label: 'DM Sans',  value: 'DM Sans' },
+];
+
 const RichBar = ({ editorRef, onSave, barStyle = {} }) => {
   const exec = (cmd, val = null) => {
     editorRef.current?.focus();
@@ -119,15 +128,15 @@ const RichBar = ({ editorRef, onSave, barStyle = {} }) => {
         <option value="5">Grande</option>
         <option value="7">XL</option>
       </select>
-      <select defaultValue="" onMouseDown={e => e.stopPropagation()}
-        onChange={e => { if (e.target.value) { exec('fontName', e.target.value); } e.target.value = ''; }}
-        style={{ padding: '3px 5px', borderRadius: 5, border: '1px solid rgba(0,0,0,0.14)', background: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 11, color: 'var(--text2)' }}>
-        <option value="">Fonte</option>
-        <option value="Georgia, serif">Georgia</option>
-        <option value="Arial, sans-serif">Arial</option>
-        <option value="'Courier New', monospace">Mono</option>
-        <option value="'Times New Roman', serif">Times</option>
-      </select>
+      <div style={{ display: 'flex', gap: 5, overflowX: 'auto', flexShrink: 0, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', maxWidth: 200 }}>
+        {FONTS.map(f => (
+          <button key={f.value}
+            onMouseDown={e => { e.preventDefault(); exec('fontName', f.value); }}
+            style={{ padding: '3px 9px', borderRadius: 5, border: '1px solid rgba(0,0,0,0.14)', background: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontFamily: f.value, fontSize: 13, color: 'var(--text)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            {f.label}
+          </button>
+        ))}
+      </div>
       <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.12)', margin: '0 2px' }} />
       {RICH_COLORS.map(c => (
         <button key={c} onMouseDown={e => { e.preventDefault(); exec('foreColor', c); }}
