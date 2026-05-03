@@ -97,7 +97,7 @@ const Saude = ({ onBack }) => {
         if (med.time !== hhmm) return;
         if (medLogs[`${med.id}:${dateKey}`]) return; // already taken
         notifiedRef.current.add(key);
-        if (Notification.permission === 'granted') {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           new Notification(`💊 Hora do remédio`, { body: `${med.name}${med.dose ? ` · ${med.dose}` : ''}`, icon: '/icons/icon-192x192.png' });
         }
       });
@@ -108,7 +108,7 @@ const Saude = ({ onBack }) => {
   }, [meds, medLogs]);
 
   const requestNotifyPermission = async () => {
-    if (Notification.permission === 'default') await Notification.requestPermission();
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') await Notification.requestPermission();
   };
 
   // ── Meds ──
@@ -146,7 +146,7 @@ const Saude = ({ onBack }) => {
 
   // ── Medidas ──
   const addMedida = () => {
-    const hasValue = Object.entries(medidasForm).some(([k, v]) => k !== 'date' && v.trim());
+    const hasValue = Object.entries(medidasForm).some(([k, v]) => k !== 'date' && String(v).trim());
     if (!hasValue) return;
     saveMedidas(ms => [{ id: newId(), ...medidasForm }, ...ms.filter(m => m.date !== medidasForm.date)]);
     setMedidasForm({ date: today, peso: '', altura: '', busto: '', cintura: '', quadril: '', bracoe: '', bracod: '', coxa: '' });
