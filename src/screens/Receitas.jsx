@@ -67,6 +67,7 @@ const Receitas = ({ onBack }) => {
   const [catFilter, setCatFilter] = useState('todas');
   const [open, setOpen] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', calorias: '', ingredientes: '', preparo: '', tags: '' });
 
   const [plano, savePlano] = useStorage('cronograma:refeicoes', DEFAULT_PLAN);
@@ -84,14 +85,36 @@ const Receitas = ({ onBack }) => {
 
   const filtered = recipes.filter(r => catFilter === 'todas' || r.cat === catFilter || (r.tags || []).includes(catFilter));
 
+  const openRecipeEdit = (recipe) => {
+    setForm({
+      nome: recipe.nome,
+      cat: recipe.cat,
+      color: recipe.color || DEFAULT_COLOR,
+      tempo: recipe.tempo || '',
+      porcoes: recipe.porcoes || '',
+      calorias: recipe.calorias || '',
+      ingredientes: (recipe.ingredientes || []).map(i => i.nome).join('\n'),
+      preparo: recipe.preparo || '',
+      tags: (recipe.tags || []).join(', '),
+    });
+    setEditingId(recipe.id);
+    setShowModal(true);
+  };
+
   const addRecipe = () => {
     if (!form.nome.trim()) return;
     const ingredientes = form.ingredientes.split('\n').map(l => l.trim()).filter(Boolean).map(nome => ({ id: newId(), nome, done: false }));
     const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean);
-    saveRecipes(rs => [...rs, { id: newId(), ...form, ingredientes, tags }]);
+    if (editingId) {
+      saveRecipes(rs => rs.map(r => r.id === editingId ? { ...r, ...form, ingredientes, tags } : r));
+      toast('Receita atualizada');
+    } else {
+      saveRecipes(rs => [...rs, { id: newId(), ...form, ingredientes, tags }]);
+      toast('Receita adicionada');
+    }
     setForm({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', calorias: '', ingredientes: '', preparo: '', tags: '' });
+    setEditingId(null);
     setShowModal(false);
-    toast('Receita adicionada');
   };
 
   const toggleIngrediente = (recipeId, ingId) => {
@@ -277,12 +300,20 @@ const Receitas = ({ onBack }) => {
                             </>
                           )}
 
-                          <button
-                            onClick={() => { saveRecipes(rs => rs.filter(r => r.id !== recipe.id)); setOpen(null); toast('Removida'); }}
-                            style={{ marginTop: 12, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', fontSize: 12, fontFamily: 'var(--sans)', padding: 0, display: 'flex', alignItems: 'center', gap: 5 }}
-                          >
-                            <Icon name="trash" size={13} color="var(--red)" /> Remover receita
-                          </button>
+                          <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+                            <button
+                              onClick={() => openRecipeEdit(recipe)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontSize: 12, fontFamily: 'var(--sans)', padding: 0, display: 'flex', alignItems: 'center', gap: 5 }}
+                            >
+                              <Icon name="edit" size={13} color="var(--accent)" /> Editar
+                            </button>
+                            <button
+                              onClick={() => { saveRecipes(rs => rs.filter(r => r.id !== recipe.id)); setOpen(null); toast('Removida'); }}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', fontSize: 12, fontFamily: 'var(--sans)', padding: 0, display: 'flex', alignItems: 'center', gap: 5 }}
+                            >
+                              <Icon name="trash" size={13} color="var(--red)" /> Remover
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -470,8 +501,8 @@ const Receitas = ({ onBack }) => {
         })()}
       </div>
 
-      {/* Modal: nova receita */}
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Nova receita">
+      {/* Modal: nova / editar receita */}
+      <Modal open={showModal} onClose={() => { setShowModal(false); setEditingId(null); setForm({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', calorias: '', ingredientes: '', preparo: '', tags: '' }); }} title={editingId ? 'Editar receita' : 'Nova receita'}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome da receita" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
 
@@ -515,7 +546,7 @@ const Receitas = ({ onBack }) => {
           <textarea className="input" placeholder="Ingredientes (um por linha)" value={form.ingredientes} onChange={e => setForm(f => ({ ...f, ingredientes: e.target.value }))} rows={5} style={{ resize: 'none' }} />
           <textarea className="input" placeholder="Modo de preparo" value={form.preparo} onChange={e => setForm(f => ({ ...f, preparo: e.target.value }))} rows={4} style={{ resize: 'none' }} />
           <input className="input" placeholder="Tags (ex: rápida, fit)" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} />
-          <button className="btn-primary" onClick={addRecipe}>Adicionar receita</button>
+          <button className="btn-primary" onClick={addRecipe}>{editingId ? 'Salvar alterações' : 'Adicionar receita'}</button>
         </div>
       </Modal>
 
