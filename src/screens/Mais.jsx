@@ -15,7 +15,7 @@ const SECTIONS = [
   { id: 'receitas',     icon: 'utensils',   label: 'Receitas',             desc: 'Suas receitas favoritas' },
   { id: 'idiomas',      icon: 'globe',      label: 'Idiomas',              desc: 'Vocabulário e flashcards' },
   { id: 'links',        icon: 'link',       label: 'Links Rápidos',        desc: 'Favoritos organizados' },
-  { id: 'capilar',      icon: 'leaf',       label: 'Cronograma Capilar',   desc: 'Cuidados com o cabelo' },
+  { id: 'autocuidados', icon: 'leaf',       label: 'Autocuidados',         desc: 'Capilar, skincare e bem-estar' },
 ];
 
 const Mais = ({ onNav }) => (

@@ -22,7 +22,7 @@ const SUB_ITEMS = [
   { id: 'receitas',     label: 'Receitas',    icon: 'utensils' },
   { id: 'idiomas',      label: 'Idiomas',     icon: 'globe' },
   { id: 'links',        label: 'Links',       icon: 'link' },
-  { id: 'capilar',      label: 'Capilar',     icon: 'leaf' },
+  { id: 'autocuidados', label: 'Autocuidados', icon: 'leaf' },
 ];
 
 const Sidebar = ({ active, onChange, userName }) => {

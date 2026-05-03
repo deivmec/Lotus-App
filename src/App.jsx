@@ -24,7 +24,8 @@ import Notificacoes from './screens/Notificacoes';
 import Receitas    from './screens/Receitas';
 import Idiomas     from './screens/Idiomas';
 import LinksRapidos from './screens/LinksRapidos';
-import Capilar     from './screens/Capilar';
+import Capilar        from './screens/Capilar';
+import Autocuidados   from './screens/Autocuidados';
 import Perfil      from './screens/Perfil';
 import Busca       from './screens/Busca';
 
@@ -46,6 +47,7 @@ const SUB_SCREENS = {
   idiomas:      Idiomas,
   links:        LinksRapidos,
   capilar:      Capilar,
+  autocuidados: Autocuidados,
   perfil:       Perfil,
   busca:        Busca,
 };

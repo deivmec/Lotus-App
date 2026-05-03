@@ -10,8 +10,9 @@ const newId = () => Date.now().toString();
 const CATS = ['todas', 'fit', 'salgado', 'doce', 'rápida'];
 
 const TABS = [
-  { id: 'receitas', label: 'Receitas' },
-  { id: 'cardapio', label: 'Cardápio' },
+  { id: 'receitas',    label: 'Receitas' },
+  { id: 'cardapio',   label: 'Cardápio' },
+  { id: 'alimentacao',label: 'Alimentação' },
 ];
 
 const POSTIT = [
@@ -66,12 +67,18 @@ const Receitas = ({ onBack }) => {
   const [catFilter, setCatFilter] = useState('todas');
   const [open, setOpen] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', ingredientes: '', preparo: '', tags: '' });
+  const [form, setForm] = useState({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', calorias: '', ingredientes: '', preparo: '', tags: '' });
 
   const [plano, savePlano] = useStorage('cronograma:refeicoes', DEFAULT_PLAN);
   const [editModal, setEditModal] = useState(null);
   const [editVal, setEditVal] = useState('');
+  const [editCal, setEditCal] = useState('');
   const [openDay, setOpenDay] = useState(TODAY_ID);
+
+  // ── Alimentação ──
+  const [alimentacao, saveAlimentacao] = useStorage('alimentacao:items', []);
+  const [showAlimModal, setShowAlimModal] = useState(false);
+  const [alimForm, setAlimForm] = useState({ date: new Date().toISOString().slice(0,10), refeicao: 'café da manhã', alimento: '', porcao: '', calorias: '' });
 
   const toast = useToast();
 
@@ -82,7 +89,7 @@ const Receitas = ({ onBack }) => {
     const ingredientes = form.ingredientes.split('\n').map(l => l.trim()).filter(Boolean).map(nome => ({ id: newId(), nome, done: false }));
     const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean);
     saveRecipes(rs => [...rs, { id: newId(), ...form, ingredientes, tags }]);
-    setForm({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', ingredientes: '', preparo: '', tags: '' });
+    setForm({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', calorias: '', ingredientes: '', preparo: '', tags: '' });
     setShowModal(false);
     toast('Receita adicionada');
   };
@@ -96,15 +103,29 @@ const Receitas = ({ onBack }) => {
 
   const openEdit = (dia, ref) => {
     const refeicao = REFEICOES.find(r => r.id === ref);
-    setEditVal(plano[dia]?.[ref] || '');
+    const slot = plano[dia]?.[ref];
+    setEditVal(typeof slot === 'object' ? slot.texto || '' : slot || '');
+    setEditCal(typeof slot === 'object' ? slot.calorias || '' : '');
     setEditModal({ dia, ref, label: refeicao.label, emoji: refeicao.emoji, colorId: refeicao.colorId });
   };
 
   const saveEdit = () => {
     if (!editModal) return;
-    savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: editVal.trim() } }));
+    const val = editVal.trim() ? { texto: editVal.trim(), calorias: editCal.trim() } : '';
+    savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: val } }));
     setEditModal(null);
     toast('Salvo');
+  };
+
+  const getSlotText = (slot) => typeof slot === 'object' ? slot?.texto || '' : slot || '';
+  const getSlotCal  = (slot) => typeof slot === 'object' ? slot?.calorias || '' : '';
+
+  const addAlimento = () => {
+    if (!alimForm.alimento.trim()) return;
+    saveAlimentacao(items => [...items, { id: newId(), ...alimForm }]);
+    setAlimForm(f => ({ ...f, alimento: '', porcao: '', calorias: '' }));
+    setShowAlimModal(false);
+    toast('Adicionado');
   };
 
   const clearDay = (diaId) => {
@@ -186,10 +207,11 @@ const Receitas = ({ onBack }) => {
                         {recipe.nome}
                       </div>
 
-                      {(recipe.tempo || recipe.porcoes) && (
+                      {(recipe.tempo || recipe.porcoes || recipe.calorias) && (
                         <div style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                           {recipe.tempo && <span>⏱ {recipe.tempo}</span>}
                           {recipe.porcoes && <span>🍽 {recipe.porcoes}p</span>}
+                          {recipe.calorias && <span style={{ color: 'var(--accent)', fontWeight: 600 }}>🔥 {recipe.calorias} kcal</span>}
                         </div>
                       )}
 
@@ -317,8 +339,10 @@ const Receitas = ({ onBack }) => {
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {REFEICOES.map(ref => {
-                      const valor = diaPlano[ref.id] || '';
-                      const hasValue = !!valor;
+                      const slot = diaPlano[ref.id];
+                      const texto = getSlotText(slot);
+                      const cal   = getSlotCal(slot);
+                      const hasValue = !!texto;
                       const ps = getPostitStyle(ref.colorId);
                       return (
                         <button
@@ -336,7 +360,10 @@ const Receitas = ({ onBack }) => {
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text3)', marginBottom: hasValue ? 2 : 0 }}>{ref.label}</div>
                             {hasValue
-                              ? <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{valor}</div>
+                              ? <div>
+                                  <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{texto}</div>
+                                  {cal && <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, marginTop: 2 }}>🔥 {cal} kcal</div>}
+                                </div>
                               : <div style={{ fontSize: 12, color: 'var(--text3)' }}>Toque para adicionar…</div>
                             }
                           </div>
@@ -369,6 +396,78 @@ const Receitas = ({ onBack }) => {
             )}
           </div>
         )}
+        {/* ── Tab: Alimentação ── */}
+        {tab === 'alimentacao' && (() => {
+          const todayStr = new Date().toISOString().slice(0,10);
+          const todayItems = alimentacao.filter(i => i.date === todayStr);
+          const totalCal = todayItems.reduce((s, i) => s + (parseFloat(i.calorias) || 0), 0);
+          const grouped = {};
+          alimentacao.forEach(item => {
+            if (!grouped[item.date]) grouped[item.date] = [];
+            grouped[item.date].push(item);
+          });
+          const dates = Object.keys(grouped).sort().reverse();
+          return (
+            <div>
+              {/* Hoje */}
+              <div className="card" style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div className="section-label" style={{ margin: 0 }}>Hoje</div>
+                  {totalCal > 0 && (
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>🔥 {Math.round(totalCal)} kcal</span>
+                  )}
+                </div>
+                {todayItems.length === 0 ? (
+                  <div style={{ fontSize: 13, color: 'var(--text3)', textAlign: 'center', padding: '12px 0' }}>Nenhum alimento registrado hoje</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {todayItems.map(item => (
+                      <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 500 }}>{item.alimento}</div>
+                          <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 1 }}>
+                            {item.refeicao}{item.porcao ? ` · ${item.porcao}` : ''}{item.calorias ? ` · 🔥 ${item.calorias} kcal` : ''}
+                          </div>
+                        </div>
+                        <button onClick={() => { saveAlimentacao(a => a.filter(x => x.id !== item.id)); toast('Removido'); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4 }}>
+                          <Icon name="trash" size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Histórico por dia */}
+              {dates.filter(d => d !== todayStr).length > 0 && (
+                <div>
+                  <div className="section-label">Histórico</div>
+                  {dates.filter(d => d !== todayStr).slice(0, 7).map(date => {
+                    const items = grouped[date];
+                    const cal = items.reduce((s, i) => s + (parseFloat(i.calorias) || 0), 0);
+                    return (
+                      <div key={date} className="card" style={{ marginBottom: 8 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                          <span style={{ fontSize: 12, color: 'var(--text2)', fontWeight: 500 }}>{date}</span>
+                          {cal > 0 && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>🔥 {Math.round(cal)} kcal</span>}
+                        </div>
+                        {items.map(item => (
+                          <div key={item.id} style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 3 }}>
+                            {item.refeicao}: {item.alimento}{item.porcao ? ` (${item.porcao})` : ''}{item.calorias ? ` · ${item.calorias} kcal` : ''}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <button className="btn-add" onClick={() => setShowAlimModal(true)}>
+                <Icon name="plus" size={16} /> Registrar alimento
+              </button>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Modal: nova receita */}
@@ -409,7 +508,10 @@ const Receitas = ({ onBack }) => {
             </select>
             <input className="input" placeholder="Tempo (ex: 30min)" value={form.tempo} onChange={e => setForm(f => ({ ...f, tempo: e.target.value }))} />
           </div>
-          <input className="input" placeholder="Porções (ex: 4)" value={form.porcoes} onChange={e => setForm(f => ({ ...f, porcoes: e.target.value }))} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <input className="input" placeholder="Porções (ex: 4)" value={form.porcoes} onChange={e => setForm(f => ({ ...f, porcoes: e.target.value }))} />
+            <input className="input" type="number" placeholder="Calorias/porção" value={form.calorias} onChange={e => setForm(f => ({ ...f, calorias: e.target.value }))} />
+          </div>
           <textarea className="input" placeholder="Ingredientes (um por linha)" value={form.ingredientes} onChange={e => setForm(f => ({ ...f, ingredientes: e.target.value }))} rows={5} style={{ resize: 'none' }} />
           <textarea className="input" placeholder="Modo de preparo" value={form.preparo} onChange={e => setForm(f => ({ ...f, preparo: e.target.value }))} rows={4} style={{ resize: 'none' }} />
           <input className="input" placeholder="Tags (ex: rápida, fit)" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} />
@@ -425,20 +527,42 @@ const Receitas = ({ onBack }) => {
             placeholder={`O que vai comer no ${editModal?.label?.toLowerCase()}?`}
             value={editVal}
             onChange={e => setEditVal(e.target.value)}
-            rows={4}
+            rows={3}
             style={{ resize: 'none' }}
             autoFocus
             onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) saveEdit(); }}
           />
+          <input className="input" type="number" placeholder="Calorias (kcal) — opcional" value={editCal} onChange={e => setEditCal(e.target.value)} />
           <div style={{ display: 'flex', gap: 8 }}>
             <button
-              onClick={() => { setEditVal(''); savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: '' } })); setEditModal(null); toast('Limpo'); }}
+              onClick={() => { setEditVal(''); setEditCal(''); savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: '' } })); setEditModal(null); toast('Limpo'); }}
               style={{ flex: 1, padding: '12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13 }}
             >
               Limpar
             </button>
             <button className="btn-primary" onClick={saveEdit} style={{ flex: 2 }}>Salvar</button>
           </div>
+        </div>
+      </Modal>
+
+      {/* Modal: alimentação */}
+      <Modal open={showAlimModal} onClose={() => setShowAlimModal(false)} title="Registrar alimento">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <input className="input" type="date" value={alimForm.date} max={new Date().toISOString().slice(0,10)} onChange={e => setAlimForm(f => ({ ...f, date: e.target.value }))} />
+          <select className="input" value={alimForm.refeicao} onChange={e => setAlimForm(f => ({ ...f, refeicao: e.target.value }))}>
+            <option value="café da manhã">☕ Café da manhã</option>
+            <option value="lanche da manhã">🍎 Lanche da manhã</option>
+            <option value="almoço">🥗 Almoço</option>
+            <option value="lanche da tarde">🍌 Lanche da tarde</option>
+            <option value="jantar">🍽️ Jantar</option>
+            <option value="ceia">🌙 Ceia</option>
+          </select>
+          <input className="input" placeholder="Alimento (ex: arroz integral)" value={alimForm.alimento} onChange={e => setAlimForm(f => ({ ...f, alimento: e.target.value }))} autoFocus />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <input className="input" placeholder="Porção (ex: 100g)" value={alimForm.porcao} onChange={e => setAlimForm(f => ({ ...f, porcao: e.target.value }))} />
+            <input className="input" type="number" placeholder="Kcal" value={alimForm.calorias} onChange={e => setAlimForm(f => ({ ...f, calorias: e.target.value }))} />
+          </div>
+          <button className="btn-primary" onClick={addAlimento}>Adicionar</button>
         </div>
       </Modal>
     </div>

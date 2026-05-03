@@ -400,3 +400,10 @@ html, body {
 }
 .habit-dot.filled { background: var(--accent); border-color: var(--accent); }
 .habit-dot.today  { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* ── Rich text editor placeholder ── */
+[data-ph]:empty::before {
+  content: attr(data-ph);
+  color: var(--text3);
+  pointer-events: none;
+}

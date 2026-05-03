@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import TabSwitcher from '../components/TabSwitcher';
 import Icon from '../components/Icon';
 import { useStorage } from '../hooks/useStorage';
@@ -33,6 +33,111 @@ const isDark = () => document.documentElement.getAttribute('data-theme') === 'da
 const getNoteBg = (colorVal) => {
   const c = getColorDef(colorVal);
   return isDark() ? c.dark : c.light;
+};
+
+const stripHtml = (html) => (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const DiaryEditor = ({ diaryRef, initialHtml, onSave, autoFocus, textCol, dark }) => {
+  useEffect(() => {
+    if (diaryRef.current) {
+      diaryRef.current.innerHTML = initialHtml || '';
+      if (autoFocus) diaryRef.current.focus();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div
+      ref={diaryRef}
+      contentEditable
+      suppressContentEditableWarning
+      onInput={() => onSave(diaryRef.current?.innerHTML || '')}
+      data-ph="O que está em sua mente?"
+      style={{
+        width: '100%', minHeight: 'calc(100vh - 110px)',
+        outline: 'none', fontFamily: 'Georgia, serif', fontSize: 15,
+        lineHeight: '28px', color: textCol,
+        padding: '6px 24px 40px 72px', boxSizing: 'border-box',
+        caretColor: dark ? '#D0A070' : 'var(--accent)',
+        wordBreak: 'break-word',
+      }}
+    />
+  );
+};
+
+const NoteBodyEditor = ({ noteRef, initialHtml, onSave, colorDot, autoFocus }) => {
+  useEffect(() => {
+    if (noteRef.current) {
+      noteRef.current.innerHTML = initialHtml || '';
+      if (autoFocus) noteRef.current.focus();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div
+      ref={noteRef}
+      contentEditable
+      suppressContentEditableWarning
+      onInput={() => onSave(noteRef.current?.innerHTML || '')}
+      data-ph="Escreva aqui…"
+      style={{
+        outline: 'none', fontFamily: 'var(--sans)', fontSize: 15, lineHeight: 1.75,
+        color: 'var(--text)', flex: 1, minHeight: 280,
+        wordBreak: 'break-word',
+      }}
+    />
+  );
+};
+
+const RICH_COLORS = ['#1a1a1a','#555555','#e53935','#fb8c00','#f9a825','#43a047','#1e88e5','#7b1fa2','#f06292','#00897b'];
+
+const RichBar = ({ editorRef, onSave, barStyle = {} }) => {
+  const exec = (cmd, val = null) => {
+    editorRef.current?.focus();
+    document.execCommand(cmd, false, val);
+    setTimeout(() => onSave(editorRef.current?.innerHTML || ''), 0);
+  };
+  return (
+    <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center', padding: '6px 10px', ...barStyle }}>
+      {[
+        { label: 'B', cmd: 'bold',         s: { fontWeight: 900 } },
+        { label: 'I', cmd: 'italic',        s: { fontStyle: 'italic' } },
+        { label: 'U', cmd: 'underline',     s: { textDecoration: 'underline' } },
+        { label: 'S', cmd: 'strikeThrough', s: { textDecoration: 'line-through' } },
+      ].map(b => (
+        <button key={b.cmd} onMouseDown={e => { e.preventDefault(); exec(b.cmd); }}
+          style={{ padding: '3px 8px', borderRadius: 5, border: '1px solid rgba(0,0,0,0.14)', background: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13, color: 'var(--text)', lineHeight: 1.4, ...b.s }}>
+          {b.label}
+        </button>
+      ))}
+      <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.12)', margin: '0 2px' }} />
+      <select defaultValue="" onMouseDown={e => e.stopPropagation()}
+        onChange={e => { if (e.target.value) { exec('fontSize', e.target.value); } e.target.value = ''; }}
+        style={{ padding: '3px 5px', borderRadius: 5, border: '1px solid rgba(0,0,0,0.14)', background: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 11, color: 'var(--text2)' }}>
+        <option value="">Tam</option>
+        <option value="1">Pequeno</option>
+        <option value="3">Normal</option>
+        <option value="5">Grande</option>
+        <option value="7">XL</option>
+      </select>
+      <select defaultValue="" onMouseDown={e => e.stopPropagation()}
+        onChange={e => { if (e.target.value) { exec('fontName', e.target.value); } e.target.value = ''; }}
+        style={{ padding: '3px 5px', borderRadius: 5, border: '1px solid rgba(0,0,0,0.14)', background: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 11, color: 'var(--text2)' }}>
+        <option value="">Fonte</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="'Courier New', monospace">Mono</option>
+        <option value="'Times New Roman', serif">Times</option>
+      </select>
+      <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.12)', margin: '0 2px' }} />
+      {RICH_COLORS.map(c => (
+        <button key={c} onMouseDown={e => { e.preventDefault(); exec('foreColor', c); }}
+          style={{ width: 16, height: 16, borderRadius: '50%', background: c, border: '1.5px solid rgba(0,0,0,0.15)', cursor: 'pointer', padding: 0, flexShrink: 0 }} />
+      ))}
+      <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.12)', margin: '0 2px' }} />
+      <button onMouseDown={e => { e.preventDefault(); exec('insertUnorderedList'); }} style={{ padding: '3px 7px', borderRadius: 5, border: '1px solid rgba(0,0,0,0.14)', background: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: 13 }}>•</button>
+      <button onMouseDown={e => { e.preventDefault(); exec('insertOrderedList'); }} style={{ padding: '3px 6px', borderRadius: 5, border: '1px solid rgba(0,0,0,0.14)', background: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: 11, fontFamily: 'var(--sans)' }}>1.</button>
+    </div>
+  );
 };
 
 /* ── PIN Pad ──────────────────────────────────────────────────────────────── */
@@ -101,6 +206,9 @@ const Pessoal = () => {
   const [notes, saveNotes]       = useStorage('notes:items', []);
   const [search, setSearch]    = useState('');
   const toast = useToast();
+
+  const diaryRef = useRef(null);
+  const noteRef  = useRef(null);
 
   // ── Diary state ──
   const [journalPage, setJournalPage] = useState(null); // { mode:'new'|'view', entry? }
@@ -262,6 +370,13 @@ const Pessoal = () => {
           ) : <div style={{ width: 25 }} />}
         </div>
 
+        {/* Formatting toolbar */}
+        <RichBar
+          editorRef={noteRef}
+          onSave={html => setNotePage(p => ({ ...p, body: html }))}
+          barStyle={{ borderBottom: `1px solid ${colorDef.dot}50` }}
+        />
+
         {/* Writing area */}
         <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', padding: '20px 24px 0' }}>
           <input
@@ -278,16 +393,11 @@ const Pessoal = () => {
           <div style={{ fontSize: 12, color: colorDef.dot, marginBottom: 18, fontWeight: 500, filter: dark ? 'brightness(1.4)' : 'none' }}>
             {notePage.date || todayStr}
           </div>
-          <textarea
-            value={notePage.body}
-            onChange={e => setNotePage(p => ({ ...p, body: e.target.value }))}
-            placeholder="Escreva aqui…"
+          <NoteBodyEditor
+            noteRef={noteRef}
+            initialHtml={notePage.body}
+            onSave={html => setNotePage(p => ({ ...p, body: html }))}
             autoFocus={!notePage.isNew}
-            style={{
-              background: 'transparent', border: 'none', outline: 'none', resize: 'none',
-              fontFamily: 'var(--sans)', fontSize: 15, lineHeight: 1.75,
-              color: 'var(--text)', width: '100%', flex: 1, minHeight: 280,
-            }}
           />
           <input
             value={notePage.tags}
@@ -411,6 +521,13 @@ const Pessoal = () => {
           </button>
         </div>
 
+        {/* Formatting toolbar */}
+        <RichBar
+          editorRef={diaryRef}
+          onSave={setPageText}
+          barStyle={{ background: barBg, borderBottom: `1px solid ${lineColor}` }}
+        />
+
         {/* Paper area */}
         <div style={{
           flex: 1, position: 'relative', overflow: 'auto',
@@ -422,20 +539,13 @@ const Pessoal = () => {
             <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 1, height: '100vh', background: marginCol }} />
           </div>
 
-          <textarea
-            value={pageText}
-            onChange={e => setPageText(e.target.value)}
+          <DiaryEditor
+            diaryRef={diaryRef}
+            initialHtml={pageText}
+            onSave={setPageText}
             autoFocus={journalPage.mode === 'new'}
-            placeholder="O que está em sua mente?"
-            style={{
-              width: '100%', minHeight: 'calc(100vh - 60px)',
-              background: 'transparent', border: 'none', outline: 'none', resize: 'none',
-              fontFamily: 'Georgia, serif', fontSize: 15,
-              lineHeight: '28px', color: textCol,
-              padding: '6px 24px 40px 72px',
-              boxSizing: 'border-box',
-              caretColor: dark ? '#D0A070' : 'var(--accent)',
-            }}
+            textCol={textCol}
+            dark={dark}
           />
         </div>
       </div>
@@ -519,7 +629,7 @@ const Pessoal = () => {
                         {new Date(entry.date + 'T12:00').toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--text2)', filter: 'blur(3.5px)', userSelect: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {entry.text.slice(0, 50)}
+                        {stripHtml(entry.text).slice(0, 50)}
                       </div>
                     </div>
                     <span style={{ fontSize: 18, flexShrink: 0 }}>💗🔒</span>
@@ -643,7 +753,7 @@ const Pessoal = () => {
                     </div>
                     {note.body && (
                       <div style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
-                        {note.body}
+                        {stripHtml(note.body)}
                       </div>
                     )}
                     <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>

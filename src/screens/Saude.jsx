@@ -16,6 +16,7 @@ const TABS = [
   { id: 'remedios', label: 'Remédios' },
   { id: 'treinos',  label: 'Treinos' },
   { id: 'ciclo',    label: 'Ciclo' },
+  { id: 'medidas',  label: 'Medidas' },
 ];
 
 const MOODS = [
@@ -50,15 +51,19 @@ const Saude = ({ onBack }) => {
   const [cycleLen, saveCycleLen]       = useStorage('saude:cycle-len', 28);
   const [periodLen, savePeriodLen]     = useStorage('saude:period-len', 5);
 
+  const [medidas, saveMedidas] = useStorage('saude:medidas', []);
+
   const [showMedModal,      setShowMedModal]      = useState(false);
   const [showWorkoutModal,  setShowWorkoutModal]  = useState(false);
   const [showMarkModal,     setShowMarkModal]     = useState(false);
   const [showEndModal,      setShowEndModal]      = useState(false);
   const [showCycleSettings, setShowCycleSettings] = useState(false);
+  const [showMedidasModal,  setShowMedidasModal]  = useState(false);
   const [markDate, setMarkDate] = useState(today);
   const [endDate,  setEndDate]  = useState(today);
   const [newMed,     setNewMed]     = useState({ name: '', dose: '', time: '08:00', notify: false });
   const [newWorkout, setNewWorkout] = useState({ type: '', date: today, duration: '', category: 'musculação' });
+  const [medidasForm, setMedidasForm] = useState({ date: today, peso: '', altura: '', busto: '', cintura: '', quadril: '', bracoe: '', bracod: '', coxa: '' });
   const toast = useToast();
 
   // ── Humor ──
@@ -138,6 +143,17 @@ const Saude = ({ onBack }) => {
     toast('Treino adicionado');
   };
   const delWorkout = (id) => { saveWorkouts(ws => ws.filter(w => w.id !== id)); toast('Removido'); };
+
+  // ── Medidas ──
+  const addMedida = () => {
+    const hasValue = Object.entries(medidasForm).some(([k, v]) => k !== 'date' && v.trim());
+    if (!hasValue) return;
+    saveMedidas(ms => [{ id: newId(), ...medidasForm }, ...ms.filter(m => m.date !== medidasForm.date)]);
+    setMedidasForm({ date: today, peso: '', altura: '', busto: '', cintura: '', quadril: '', bracoe: '', bracod: '', coxa: '' });
+    setShowMedidasModal(false);
+    toast('Medidas salvas');
+  };
+  const lastMedida = medidas[0] || null;
 
   // ── Ciclo ──
   const calcCycleInfo = () => {
@@ -775,6 +791,98 @@ const Saude = ({ onBack }) => {
             </div>
           </div>
         )}
+        {/* ── Medidas ── */}
+        {tab === 'medidas' && (
+          <div>
+            {lastMedida ? (
+              <div>
+                {/* Últimas medidas */}
+                <div className="card" style={{ marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                    <div className="section-label" style={{ margin: 0 }}>Últimas medidas</div>
+                    <span style={{ fontSize: 11, color: 'var(--text3)' }}>{lastMedida.date}</span>
+                  </div>
+                  {/* Peso e altura em destaque */}
+                  {(lastMedida.peso || lastMedida.altura) && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                      {lastMedida.peso && (
+                        <div style={{ background: 'var(--accent-bg)', borderRadius: 'var(--r-sm)', padding: '12px 14px' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>Peso</div>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                            <span style={{ fontFamily: 'var(--serif)', fontSize: 26, color: 'var(--accent)', lineHeight: 1 }}>{lastMedida.peso}</span>
+                            <span style={{ fontSize: 11, color: 'var(--text3)' }}>kg</span>
+                          </div>
+                        </div>
+                      )}
+                      {lastMedida.altura && (
+                        <div style={{ background: 'var(--bg2)', borderRadius: 'var(--r-sm)', padding: '12px 14px' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>Altura</div>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                            <span style={{ fontFamily: 'var(--serif)', fontSize: 26, color: 'var(--text)', lineHeight: 1 }}>{lastMedida.altura}</span>
+                            <span style={{ fontSize: 11, color: 'var(--text3)' }}>cm</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* Demais medidas */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                    {[
+                      { key: 'busto',  label: 'Busto' },
+                      { key: 'cintura',label: 'Cintura' },
+                      { key: 'quadril',label: 'Quadril' },
+                      { key: 'bracoe', label: 'Braço E' },
+                      { key: 'bracod', label: 'Braço D' },
+                      { key: 'coxa',   label: 'Coxa' },
+                    ].filter(f => lastMedida[f.key]).map(f => (
+                      <div key={f.key} style={{ background: 'var(--bg2)', borderRadius: 8, padding: '8px 10px' }}>
+                        <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2 }}>{f.label}</div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+                          <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)' }}>{lastMedida[f.key]}</span>
+                          <span style={{ fontSize: 9, color: 'var(--text3)' }}>cm</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Histórico */}
+                {medidas.length > 1 && (
+                  <div>
+                    <div className="section-label">Histórico</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+                      {medidas.slice(1, 10).map(m => (
+                        <div key={m.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>{m.date}</div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              {m.peso  && <span style={{ fontSize: 12, color: 'var(--text2)' }}>⚖️ {m.peso}kg</span>}
+                              {m.busto && <span style={{ fontSize: 12, color: 'var(--text2)' }}>👙 {m.busto}cm</span>}
+                              {m.cintura && <span style={{ fontSize: 12, color: 'var(--text2)' }}>📏 {m.cintura}cm</span>}
+                              {m.quadril && <span style={{ fontSize: 12, color: 'var(--text2)' }}>{m.quadril}cm</span>}
+                            </div>
+                          </div>
+                          <button onClick={() => { saveMedidas(ms => ms.filter(x => x.id !== m.id)); toast('Removido'); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: 4 }}>
+                            <Icon name="trash" size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text3)' }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>📏</div>
+                <div style={{ fontSize: 14, color: 'var(--text2)', fontWeight: 500 }}>Nenhuma medida registrada</div>
+                <div style={{ fontSize: 12, marginTop: 6 }}>Registre peso, altura e medidas corporais</div>
+              </div>
+            )}
+            <button className="btn-add" onClick={() => { setMedidasForm({ date: today, peso: '', altura: '', busto: '', cintura: '', quadril: '', bracoe: '', bracod: '', coxa: '' }); setShowMedidasModal(true); }}>
+              <Icon name="plus" size={16} /> Registrar medidas
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Modais ── */}
@@ -821,6 +929,39 @@ const Saude = ({ onBack }) => {
             </div>
           </button>
           <button className="btn-primary" onClick={addMed}>Adicionar</button>
+        </div>
+      </Modal>
+
+      <Modal open={showMedidasModal} onClose={() => setShowMedidasModal(false)} title="Registrar medidas">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <input className="input" type="date" value={medidasForm.date} max={today} onChange={e => setMedidasForm(f => ({ ...f, date: e.target.value }))} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div>
+              <label style={{ fontSize: 11, color: 'var(--text2)', display: 'block', marginBottom: 4 }}>Peso (kg)</label>
+              <input className="input" type="number" step="0.1" placeholder="Ex: 62.5" value={medidasForm.peso} onChange={e => setMedidasForm(f => ({ ...f, peso: e.target.value }))} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: 'var(--text2)', display: 'block', marginBottom: 4 }}>Altura (cm)</label>
+              <input className="input" type="number" placeholder="Ex: 165" value={medidasForm.altura} onChange={e => setMedidasForm(f => ({ ...f, altura: e.target.value }))} />
+            </div>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: 4 }}>Medidas corporais (cm)</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {[
+              { key: 'busto',   label: 'Busto' },
+              { key: 'cintura', label: 'Cintura' },
+              { key: 'quadril', label: 'Quadril' },
+              { key: 'bracoe',  label: 'Braço Esq.' },
+              { key: 'bracod',  label: 'Braço Dir.' },
+              { key: 'coxa',    label: 'Coxa' },
+            ].map(f => (
+              <div key={f.key}>
+                <label style={{ fontSize: 11, color: 'var(--text2)', display: 'block', marginBottom: 4 }}>{f.label}</label>
+                <input className="input" type="number" step="0.5" placeholder="cm" value={medidasForm[f.key]} onChange={e => setMedidasForm(fm => ({ ...fm, [f.key]: e.target.value }))} />
+              </div>
+            ))}
+          </div>
+          <button className="btn-primary" onClick={addMedida}>Salvar medidas</button>
         </div>
       </Modal>
 
