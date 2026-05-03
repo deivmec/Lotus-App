@@ -63,6 +63,7 @@ const WIDGET_DEFS = [
 
 const DEFAULT_CONFIG = [
   { id: 'mood',     size: 'medium' },
+  { id: 'diario',   size: 'medium' },
   { id: 'stats',    size: 'medium' },
   { id: 'tarefas',  size: 'medium' },
   { id: 'cardapio', size: 'medium' },
@@ -731,6 +732,8 @@ const NotasWidget = ({ onNav, size }) => {
 };
 
 // ── Diário ──
+const stripHtml = (html) => (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
 const DiarioWidget = ({ onNav, size }) => {
   const [journal] = useStorage('journal:items', []);
   const todayEntry = journal.find(j => j.date === TODAY);
@@ -756,7 +759,7 @@ const DiarioWidget = ({ onNav, size }) => {
           <>
             <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 8, fontWeight: 500 }}>Hoje — {TODAY}</div>
             <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7 }}>
-              {todayEntry.text.length > maxChars ? todayEntry.text.slice(0, maxChars) + '…' : todayEntry.text}
+              {(() => { const t = stripHtml(todayEntry.text); return t.length > maxChars ? t.slice(0, maxChars) + '…' : t; })()}
             </div>
           </>
         ) : (
@@ -966,7 +969,15 @@ const Home = ({ onNav, userName }) => {
   const name = firstName || 'você';
 
   const [rawConfig, saveConfig] = useStorage('home:widgets', DEFAULT_CONFIG);
-  const config = rawConfig.map(normalize);
+  const config = (() => {
+    const c = rawConfig.map(normalize);
+    if (!c.some(w => w.id === 'diario')) {
+      const moodIdx = c.findIndex(w => w.id === 'mood');
+      const insert = moodIdx >= 0 ? moodIdx + 1 : 1;
+      c.splice(insert, 0, { id: 'diario', size: 'medium' });
+    }
+    return c;
+  })();
   const [showPersonalize, setShowPersonalize] = useState(false);
   const [dragIdx, setDragIdx] = useState(null);
   const [dropIdx, setDropIdx] = useState(null);
