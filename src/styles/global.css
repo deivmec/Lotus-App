@@ -47,6 +47,18 @@ html, body {
   #root { align-items: stretch; }
 }
 
+/* ── Main content wrapper (mobile: transparent pass-through) ── */
+.main-content-desktop {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.main-content-desktop > .scroll-area {
+  flex: 1;
+}
+
 /* ── Desktop layout ── */
 @media (min-width: 768px) {
   #root { align-items: stretch; }
@@ -70,17 +82,22 @@ html, body {
 
   .main-content-desktop {
     flex: 1;
-    display: flex;
+    flex-direction: row;
     justify-content: center;
     overflow-y: auto;
+    overflow-x: hidden;
     background: #1C1A18;
   }
 
   .main-content-desktop > .scroll-area {
+    flex: none;
     width: 100%;
-    max-width: 720px;
+    max-width: 740px;
     background: var(--bg);
     min-height: 100%;
+    overflow-y: visible;
+    overflow-x: visible;
+    box-shadow: 0 0 80px rgba(0,0,0,0.35);
   }
 }
 

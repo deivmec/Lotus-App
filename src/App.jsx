@@ -58,9 +58,11 @@ const Shell = ({ children, activeTab, onTabChange, subScreen, userName }) => {
   return (
     <div className="app-shell">
       <Sidebar active={navActive} onChange={onTabChange} userName={userName} />
-      <main className="scroll-area" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-        {children}
-      </main>
+      <div className="main-content-desktop">
+        <main className="scroll-area">
+          {children}
+        </main>
+      </div>
       <BottomNav active={activeTab} onChange={onTabChange} />
     </div>
   );
