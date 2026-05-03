@@ -11,8 +11,8 @@ const CATS = ['todas', 'fit', 'salgado', 'doce', 'rápida'];
 
 const TABS = [
   { id: 'receitas',    label: 'Receitas' },
-  { id: 'cardapio',   label: 'Cardápio' },
-  { id: 'alimentacao',label: 'Alimentação' },
+  { id: 'cardapio',    label: 'Cardápio' },
+  { id: 'alimentacao', label: 'Alimentação' },
 ];
 
 const POSTIT = [

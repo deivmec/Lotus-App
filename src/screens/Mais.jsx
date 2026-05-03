@@ -12,7 +12,7 @@ const SECTIONS = [
   { id: 'inspiracao',   icon: 'palette',    label: 'Inspiração',           desc: 'Moodboard, quadros e paletas' },
   { id: 'utilitarios',  icon: 'calculator', label: 'Utilitários',          desc: 'Calculadora e conversor' },
   { id: 'notificacoes', icon: 'bell',       label: 'Notificações',         desc: 'Avisos urgentes' },
-  { id: 'receitas',     icon: 'utensils',   label: 'Receitas',             desc: 'Suas receitas favoritas' },
+  { id: 'receitas',     icon: 'utensils',   label: 'Alimentação',          desc: 'Suas receitas favoritas' },
   { id: 'idiomas',      icon: 'globe',      label: 'Idiomas',              desc: 'Vocabulário e flashcards' },
   { id: 'links',        icon: 'link',       label: 'Links Rápidos',        desc: 'Favoritos organizados' },
   { id: 'autocuidados', icon: 'leaf',       label: 'Autocuidados',         desc: 'Capilar, skincare e bem-estar' },
