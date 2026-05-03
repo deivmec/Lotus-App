@@ -502,7 +502,9 @@ const Receitas = ({ onBack }) => {
       </div>
 
       {/* Modal: nova / editar receita */}
-      <Modal open={showModal} onClose={() => { setShowModal(false); setEditingId(null); setForm({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', calorias: '', ingredientes: '', preparo: '', tags: '' }); }} title={editingId ? 'Editar receita' : 'Nova receita'}>
+      <Modal open={showModal} onClose={() => { setShowModal(false); setEditingId(null); setForm({ nome: '', cat: 'salgado', color: DEFAULT_COLOR, tempo: '', porcoes: '', calorias: '', ingredientes: '', preparo: '', tags: '' }); }} title={editingId ? 'Editar receita' : 'Nova receita'}
+        footer={<button className="btn-primary" onClick={addRecipe}>{editingId ? 'Salvar alterações' : 'Adicionar receita'}</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome da receita" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
 
@@ -546,12 +548,23 @@ const Receitas = ({ onBack }) => {
           <textarea className="input" placeholder="Ingredientes (um por linha)" value={form.ingredientes} onChange={e => setForm(f => ({ ...f, ingredientes: e.target.value }))} rows={5} style={{ resize: 'none' }} />
           <textarea className="input" placeholder="Modo de preparo" value={form.preparo} onChange={e => setForm(f => ({ ...f, preparo: e.target.value }))} rows={4} style={{ resize: 'none' }} />
           <input className="input" placeholder="Tags (ex: rápida, fit)" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} />
-          <button className="btn-primary" onClick={addRecipe}>{editingId ? 'Salvar alterações' : 'Adicionar receita'}</button>
         </div>
       </Modal>
 
       {/* Modal: editar refeição do cardápio */}
-      <Modal open={!!editModal} onClose={() => setEditModal(null)} title={editModal ? `${editModal.emoji} ${editModal.label}` : ''}>
+      <Modal open={!!editModal} onClose={() => setEditModal(null)} title={editModal ? `${editModal.emoji} ${editModal.label}` : ''}
+        footer={
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => { setEditVal(''); setEditCal(''); savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: '' } })); setEditModal(null); toast('Limpo'); }}
+              style={{ flex: 1, padding: '12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13 }}
+            >
+              Limpar
+            </button>
+            <button className="btn-primary" onClick={saveEdit} style={{ flex: 2 }}>Salvar</button>
+          </div>
+        }
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <textarea
             className="input"
@@ -564,20 +577,13 @@ const Receitas = ({ onBack }) => {
             onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) saveEdit(); }}
           />
           <input className="input" type="number" placeholder="Calorias (kcal) — opcional" value={editCal} onChange={e => setEditCal(e.target.value)} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={() => { setEditVal(''); setEditCal(''); savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: '' } })); setEditModal(null); toast('Limpo'); }}
-              style={{ flex: 1, padding: '12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13 }}
-            >
-              Limpar
-            </button>
-            <button className="btn-primary" onClick={saveEdit} style={{ flex: 2 }}>Salvar</button>
-          </div>
         </div>
       </Modal>
 
       {/* Modal: alimentação */}
-      <Modal open={showAlimModal} onClose={() => setShowAlimModal(false)} title="Registrar alimento">
+      <Modal open={showAlimModal} onClose={() => setShowAlimModal(false)} title="Registrar alimento"
+        footer={<button className="btn-primary" onClick={addAlimento}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" type="date" value={alimForm.date} max={new Date().toISOString().slice(0,10)} onChange={e => setAlimForm(f => ({ ...f, date: e.target.value }))} />
           <select className="input" value={alimForm.refeicao} onChange={e => setAlimForm(f => ({ ...f, refeicao: e.target.value }))}>
@@ -593,7 +599,6 @@ const Receitas = ({ onBack }) => {
             <input className="input" placeholder="Porção (ex: 100g)" value={alimForm.porcao} onChange={e => setAlimForm(f => ({ ...f, porcao: e.target.value }))} />
             <input className="input" type="number" placeholder="Kcal" value={alimForm.calorias} onChange={e => setAlimForm(f => ({ ...f, calorias: e.target.value }))} />
           </div>
-          <button className="btn-primary" onClick={addAlimento}>Adicionar</button>
         </div>
       </Modal>
     </div>

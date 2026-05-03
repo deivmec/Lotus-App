@@ -227,7 +227,9 @@ const Calendario = ({ onBack }) => {
         </div>
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo evento">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo evento"
+        footer={<button className="btn-primary" onClick={addEvent}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Título" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} autoFocus />
           <input className="input" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
@@ -258,7 +260,6 @@ const Calendario = ({ onBack }) => {
               ))}
             </div>
           </div>
-          <button className="btn-primary" onClick={addEvent}>Adicionar</button>
         </div>
       </Modal>
     </div>

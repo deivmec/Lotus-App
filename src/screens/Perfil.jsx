@@ -40,12 +40,13 @@ const Row = ({ label, value, onPress }) => (
   </button>
 );
 
-const FieldModal = ({ title, children, onClose }) => (
+const FieldModal = ({ title, children, footer, onClose }) => (
   <div className="modal-overlay" onClick={onClose}>
     <div className="modal-sheet" onClick={e => e.stopPropagation()}>
       <div className="modal-handle" />
-      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 20 }}>{title}</div>
-      {children}
+      {title && <div className="modal-title" style={{ fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 600 }}>{title}</div>}
+      <div className="modal-body">{children}</div>
+      {footer && <div className="modal-footer">{footer}</div>}
     </div>
   </div>
 );
@@ -307,31 +308,35 @@ const Perfil = ({ onBack, onLogout, onUpdateUser }) => {
 
       {/* Field modals */}
       {modal === 'name' && (
-        <FieldModal title="Nome" onClose={() => setModal(null)}>
+        <FieldModal title="Nome" onClose={() => setModal(null)}
+          footer={<button className="btn-primary" onClick={() => saveField('name')}>Salvar</button>}
+        >
           <input className="input" placeholder="Seu nome" value={fieldVal} onChange={e => setFieldVal(e.target.value)} autoFocus />
-          <button className="btn-primary" style={{ marginTop: 12 }} onClick={() => saveField('name')}>Salvar</button>
         </FieldModal>
       )}
       {modal === 'email' && (
-        <FieldModal title="E-mail" onClose={() => setModal(null)}>
+        <FieldModal title="E-mail" onClose={() => setModal(null)}
+          footer={<button className="btn-primary" onClick={() => saveField('email')}>Salvar</button>}
+        >
           <input className="input" type="email" placeholder="seu@email.com" value={fieldVal} onChange={e => setFieldVal(e.target.value)} autoFocus />
-          <button className="btn-primary" style={{ marginTop: 12 }} onClick={() => saveField('email')}>Salvar</button>
         </FieldModal>
       )}
       {modal === 'phone' && (
-        <FieldModal title="Telefone" onClose={() => setModal(null)}>
+        <FieldModal title="Telefone" onClose={() => setModal(null)}
+          footer={<button className="btn-primary" onClick={() => saveField('phone')}>Salvar</button>}
+        >
           <input className="input" type="tel" placeholder="(11) 99999-9999" value={fieldVal} onChange={e => setFieldVal(e.target.value)} autoFocus />
-          <button className="btn-primary" style={{ marginTop: 12 }} onClick={() => saveField('phone')}>Salvar</button>
         </FieldModal>
       )}
       {modal === 'password' && (
-        <FieldModal title="Alterar senha" onClose={() => setModal(null)}>
+        <FieldModal title="Alterar senha" onClose={() => setModal(null)}
+          footer={<button className="btn-primary" onClick={savePassword}>Salvar</button>}
+        >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <input className="input" type="password" placeholder="Senha atual" value={curPass} onChange={e => setCurPass(e.target.value)} autoFocus />
             <input className="input" type="password" placeholder="Nova senha" value={newPass} onChange={e => setNewPass(e.target.value)} />
             <input className="input" type="password" placeholder="Confirmar nova senha" value={confPass} onChange={e => setConfPass(e.target.value)} />
           </div>
-          <button className="btn-primary" style={{ marginTop: 12 }} onClick={savePassword}>Salvar</button>
         </FieldModal>
       )}
 
@@ -424,34 +429,35 @@ const Perfil = ({ onBack, onLogout, onUpdateUser }) => {
         <div className="modal-overlay" onClick={() => setShowAvatarModal(false)}>
           <div className="modal-sheet" onClick={e => e.stopPropagation()}>
             <div className="modal-handle" />
-            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 20 }}>Foto do perfil</div>
+            <div className="modal-title" style={{ fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 600 }}>Foto do perfil</div>
+            <div className="modal-body">
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhoto} />
+              <button
+                className="btn-add"
+                style={{ marginBottom: 20 }}
+                onClick={() => fileRef.current.click()}
+              >
+                <Icon name="camera" size={16} color="var(--text3)" />
+                Enviar foto
+              </button>
 
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhoto} />
-            <button
-              className="btn-add"
-              style={{ marginBottom: 20 }}
-              onClick={() => fileRef.current.click()}
-            >
-              <Icon name="camera" size={16} color="var(--text3)" />
-              Enviar foto
-            </button>
-
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Escolher emoji</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 8 }}>
-              {EMOJI_LIST.map((emoji, i) => (
-                <button
-                  key={i}
-                  onClick={() => selectEmoji(emoji)}
-                  style={{
-                    background: user.emoji === emoji ? 'var(--accent-bg)' : 'var(--bg2)',
-                    border: user.emoji === emoji ? '2px solid var(--accent)' : '2px solid transparent',
-                    borderRadius: 8, padding: 6, fontSize: 22, cursor: 'pointer',
-                    lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  {emoji}
-                </button>
-              ))}
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Escolher emoji</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 8 }}>
+                {EMOJI_LIST.map((emoji, i) => (
+                  <button
+                    key={i}
+                    onClick={() => selectEmoji(emoji)}
+                    style={{
+                      background: user.emoji === emoji ? 'var(--accent-bg)' : 'var(--bg2)',
+                      border: user.emoji === emoji ? '2px solid var(--accent)' : '2px solid transparent',
+                      borderRadius: 8, padding: 6, fontSize: 22, cursor: 'pointer',
+                      lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

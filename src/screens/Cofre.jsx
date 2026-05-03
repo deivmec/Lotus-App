@@ -317,7 +317,9 @@ const Cofre = ({ onBack }) => {
         }}
       />
 
-      <Modal open={showDocModal} onClose={() => { setShowDocModal(false); setNewDoc({ name: '', number: '', expiry: '', photo: null }); }} title="Novo documento">
+      <Modal open={showDocModal} onClose={() => { setShowDocModal(false); setNewDoc({ name: '', number: '', expiry: '', photo: null }); }} title="Novo documento"
+        footer={<button className="btn-primary" onClick={addDoc}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome (ex: RG)" value={newDoc.name} onChange={e => setNewDoc(d => ({ ...d, name: e.target.value }))} autoFocus />
           <input className="input" placeholder="Número" value={newDoc.number} onChange={e => setNewDoc(d => ({ ...d, number: e.target.value }))} />
@@ -341,27 +343,28 @@ const Cofre = ({ onBack }) => {
               <Icon name="camera" size={16} /> Adicionar foto (opcional)
             </button>
           )}
-          <button className="btn-primary" onClick={addDoc}>Adicionar</button>
         </div>
       </Modal>
 
-      <Modal open={showLoginModal} onClose={() => setShowLoginModal(false)} title="Novo login">
+      <Modal open={showLoginModal} onClose={() => setShowLoginModal(false)} title="Novo login"
+        footer={<button className="btn-primary" onClick={addLogin}>Salvar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Serviço (ex: Gmail)" value={newLogin.service} onChange={e => setNewLogin(l => ({ ...l, service: e.target.value }))} autoFocus />
           <input className="input" placeholder="Usuário / e-mail" value={newLogin.user} onChange={e => setNewLogin(l => ({ ...l, user: e.target.value }))} />
           <input className="input" type="password" placeholder="Senha" value={newLogin.pass} onChange={e => setNewLogin(l => ({ ...l, pass: e.target.value }))} />
-          <button className="btn-primary" onClick={addLogin}>Salvar</button>
         </div>
       </Modal>
 
-      <Modal open={showContactModal} onClose={() => setShowContactModal(false)} title="Novo contato">
+      <Modal open={showContactModal} onClose={() => setShowContactModal(false)} title="Novo contato"
+        footer={<button className="btn-primary" onClick={addContact}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome" value={newContact.name} onChange={e => setNewContact(c => ({ ...c, name: e.target.value }))} autoFocus />
           <input className="input" placeholder="Tipo (ex: médico)" value={newContact.type} onChange={e => setNewContact(c => ({ ...c, type: e.target.value }))} />
           <input className="input" placeholder="Telefone" value={newContact.phone} onChange={e => setNewContact(c => ({ ...c, phone: e.target.value }))} />
           <input className="input" placeholder="E-mail" value={newContact.email} onChange={e => setNewContact(c => ({ ...c, email: e.target.value }))} />
           <input className="input" placeholder="Nota (opcional)" value={newContact.note} onChange={e => setNewContact(c => ({ ...c, note: e.target.value }))} />
-          <button className="btn-primary" onClick={addContact}>Adicionar</button>
         </div>
       </Modal>
 

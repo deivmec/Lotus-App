@@ -886,25 +886,29 @@ const Saude = ({ onBack }) => {
       </div>
 
       {/* ── Modais ── */}
-      <Modal open={showMarkModal} onClose={() => setShowMarkModal(false)} title="Marcar menstruação">
+      <Modal open={showMarkModal} onClose={() => setShowMarkModal(false)} title="Marcar menstruação"
+        footer={<button className="btn-primary" onClick={() => markPeriod(markDate)}>
+          {cycleStarts.includes(markDate) ? '✕  Remover esta data' : '🩸  Marcar menstruação'}
+        </button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ fontSize: 13, color: 'var(--text2)' }}>Selecione a data de início da menstruação:</div>
           <input className="input" type="date" value={markDate} onChange={e => setMarkDate(e.target.value)} />
-          <button className="btn-primary" onClick={() => markPeriod(markDate)}>
-            {cycleStarts.includes(markDate) ? '✕  Remover esta data' : '🩸  Marcar menstruação'}
-          </button>
         </div>
       </Modal>
 
-      <Modal open={showEndModal} onClose={() => setShowEndModal(false)} title="Fim do período">
+      <Modal open={showEndModal} onClose={() => setShowEndModal(false)} title="Fim do período"
+        footer={<button className="btn-primary" onClick={() => markPeriodEnd(endDate)}>✅ Registrar fim</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ fontSize: 13, color: 'var(--text2)' }}>Quando sua menstruação terminou?</div>
           <input className="input" type="date" value={endDate} max={today} onChange={e => setEndDate(e.target.value)} />
-          <button className="btn-primary" onClick={() => markPeriodEnd(endDate)}>✅ Registrar fim</button>
         </div>
       </Modal>
 
-      <Modal open={showMedModal} onClose={() => setShowMedModal(false)} title="Novo remédio/vitamina">
+      <Modal open={showMedModal} onClose={() => setShowMedModal(false)} title="Novo remédio/vitamina"
+        footer={<button className="btn-primary" onClick={addMed}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome (ex: Vitamina D)" value={newMed.name} onChange={e => setNewMed(m => ({ ...m, name: e.target.value }))} autoFocus />
           <input className="input" placeholder="Dose (ex: 500mg, 1 cápsula)" value={newMed.dose} onChange={e => setNewMed(m => ({ ...m, dose: e.target.value }))} />
@@ -928,11 +932,12 @@ const Saude = ({ onBack }) => {
               <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'white', position: 'absolute', top: 2, left: newMed.notify ? 18 : 2, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
             </div>
           </button>
-          <button className="btn-primary" onClick={addMed}>Adicionar</button>
         </div>
       </Modal>
 
-      <Modal open={showMedidasModal} onClose={() => setShowMedidasModal(false)} title="Registrar medidas">
+      <Modal open={showMedidasModal} onClose={() => setShowMedidasModal(false)} title="Registrar medidas"
+        footer={<button className="btn-primary" onClick={addMedida}>Salvar medidas</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" type="date" value={medidasForm.date} max={today} onChange={e => setMedidasForm(f => ({ ...f, date: e.target.value }))} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -961,11 +966,12 @@ const Saude = ({ onBack }) => {
               </div>
             ))}
           </div>
-          <button className="btn-primary" onClick={addMedida}>Salvar medidas</button>
         </div>
       </Modal>
 
-      <Modal open={showWorkoutModal} onClose={() => setShowWorkoutModal(false)} title="Novo treino">
+      <Modal open={showWorkoutModal} onClose={() => setShowWorkoutModal(false)} title="Novo treino"
+        footer={<button className="btn-primary" onClick={addWorkout}>Salvar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Tipo (ex: Peito + Ombro)" value={newWorkout.type} onChange={e => setNewWorkout(w => ({ ...w, type: e.target.value }))} autoFocus />
           <select className="input" value={newWorkout.category} onChange={e => setNewWorkout(w => ({ ...w, category: e.target.value }))}>
@@ -976,7 +982,6 @@ const Saude = ({ onBack }) => {
           </select>
           <input className="input" type="date" value={newWorkout.date} onChange={e => setNewWorkout(w => ({ ...w, date: e.target.value }))} />
           <input className="input" placeholder="Duração (ex: 45min)" value={newWorkout.duration} onChange={e => setNewWorkout(w => ({ ...w, duration: e.target.value }))} />
-          <button className="btn-primary" onClick={addWorkout}>Salvar</button>
         </div>
       </Modal>
     </div>

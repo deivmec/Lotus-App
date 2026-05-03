@@ -362,23 +362,27 @@ const Viagem = ({ onBack }) => {
         )}
       </div>
 
-      <Modal open={showBucketModal} onClose={() => setShowBucketModal(false)} title="Novo destino">
+      <Modal open={showBucketModal} onClose={() => setShowBucketModal(false)} title="Novo destino"
+        footer={<button className="btn-primary" onClick={addBucket}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Destino (ex: Japão)" value={newBucket.place} onChange={e => setNewBucket(b => ({ ...b, place: e.target.value }))} autoFocus />
           <input className="input" placeholder="Nota (opcional)" value={newBucket.note} onChange={e => setNewBucket(b => ({ ...b, note: e.target.value }))} />
-          <button className="btn-primary" onClick={addBucket}>Adicionar</button>
         </div>
       </Modal>
 
-      <Modal open={showDocModal} onClose={() => setShowDocModal(false)} title="Novo documento de viagem">
+      <Modal open={showDocModal} onClose={() => setShowDocModal(false)} title="Novo documento de viagem"
+        footer={<button className="btn-primary" onClick={addDoc}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Documento (ex: Passaporte)" value={newDoc.name} onChange={e => setNewDoc(d => ({ ...d, name: e.target.value }))} autoFocus />
           <input className="input" type="date" placeholder="Validade" value={newDoc.expiry} onChange={e => setNewDoc(d => ({ ...d, expiry: e.target.value }))} />
-          <button className="btn-primary" onClick={addDoc}>Adicionar</button>
         </div>
       </Modal>
 
-      <Modal open={showDestinoModal} onClose={() => setShowDestinoModal(false)} title="Nova viagem">
+      <Modal open={showDestinoModal} onClose={() => setShowDestinoModal(false)} title="Nova viagem"
+        footer={<button className="btn-primary" onClick={addDestino}>Criar destino</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', gap: 10 }}>
             <input className="input" placeholder="✈️" value={newDestino.emoji} onChange={e => setNewDestino(d => ({ ...d, emoji: e.target.value }))} style={{ width: 64 }} />
@@ -398,7 +402,6 @@ const Viagem = ({ onBack }) => {
             </div>
           </div>
           <textarea className="input" placeholder="Notas (opcional)" value={newDestino.notes} onChange={e => setNewDestino(d => ({ ...d, notes: e.target.value }))} rows={2} style={{ resize: 'none' }} />
-          <button className="btn-primary" onClick={addDestino}>Criar destino</button>
         </div>
       </Modal>
     </div>

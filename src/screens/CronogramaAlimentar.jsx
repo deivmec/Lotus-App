@@ -204,7 +204,19 @@ const CronogramaAlimentar = ({ onBack }) => {
       </div>
 
       {/* Modal de edição */}
-      <Modal open={!!editModal} onClose={() => setEditModal(null)} title={editModal ? `${editModal.emoji} ${editModal.label}` : ''}>
+      <Modal open={!!editModal} onClose={() => setEditModal(null)} title={editModal ? `${editModal.emoji} ${editModal.label}` : ''}
+        footer={
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => { setEditVal(''); savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: '' } })); setEditModal(null); toast('Limpo'); }}
+              style={{ flex: 1, padding: '12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'white', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13 }}
+            >
+              Limpar
+            </button>
+            <button className="btn-primary" onClick={saveEdit} style={{ flex: 2 }}>Salvar</button>
+          </div>
+        }
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <textarea
             className="input"
@@ -216,15 +228,6 @@ const CronogramaAlimentar = ({ onBack }) => {
             autoFocus
             onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) saveEdit(); }}
           />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={() => { setEditVal(''); savePlano(p => ({ ...p, [editModal.dia]: { ...(p[editModal.dia] || {}), [editModal.ref]: '' } })); setEditModal(null); toast('Limpo'); }}
-              style={{ flex: 1, padding: '12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'white', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 13 }}
-            >
-              Limpar
-            </button>
-            <button className="btn-primary" onClick={saveEdit} style={{ flex: 2 }}>Salvar</button>
-          </div>
         </div>
       </Modal>
     </div>

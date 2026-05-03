@@ -386,17 +386,20 @@ const Idiomas = ({ onBack }) => {
         )}
       </div>
 
-      <Modal open={showVocabModal} onClose={() => setShowVocabModal(false)} title="Nova palavra">
+      <Modal open={showVocabModal} onClose={() => setShowVocabModal(false)} title="Nova palavra"
+        footer={<button className="btn-primary" onClick={addVocab}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Palavra" value={newVocab.palavra} onChange={e => setNewVocab(v => ({ ...v, palavra: e.target.value }))} autoFocus />
           <input className="input" placeholder="Tradução" value={newVocab.trad} onChange={e => setNewVocab(v => ({ ...v, trad: e.target.value }))} />
           <input className="input" placeholder="Exemplo de uso" value={newVocab.ex} onChange={e => setNewVocab(v => ({ ...v, ex: e.target.value }))} />
           <input className="input" placeholder="Tema (ex: comida)" value={newVocab.tema} onChange={e => setNewVocab(v => ({ ...v, tema: e.target.value }))} />
-          <button className="btn-primary" onClick={addVocab}>Adicionar</button>
         </div>
       </Modal>
 
-      <Modal open={showFlashModal} onClose={() => setShowFlashModal(false)} title="Novo flashcard">
+      <Modal open={showFlashModal} onClose={() => setShowFlashModal(false)} title="Novo flashcard"
+        footer={<button className="btn-primary" onClick={addFlash}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Frente (palavra / pergunta)" value={newFlash.frente} onChange={e => setNewFlash(f => ({ ...f, frente: e.target.value }))} autoFocus />
           <input className="input" placeholder="Verso (tradução / resposta)" value={newFlash.verso} onChange={e => setNewFlash(f => ({ ...f, verso: e.target.value }))} />
@@ -405,15 +408,15 @@ const Idiomas = ({ onBack }) => {
             <option value="médio">Médio</option>
             <option value="difícil">Difícil</option>
           </select>
-          <button className="btn-primary" onClick={addFlash}>Adicionar</button>
         </div>
       </Modal>
 
-      <Modal open={showNoteModal} onClose={() => setShowNoteModal(false)} title="Nova nota de idioma">
+      <Modal open={showNoteModal} onClose={() => setShowNoteModal(false)} title="Nova nota de idioma"
+        footer={<button className="btn-primary" onClick={addNote}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Título (ex: Gramática — casos)" value={newNote.title} onChange={e => setNewNote(n => ({ ...n, title: e.target.value }))} autoFocus />
           <textarea className="input" placeholder="Conteúdo..." value={newNote.body} onChange={e => setNewNote(n => ({ ...n, body: e.target.value }))} rows={5} style={{ resize: 'none' }} />
-          <button className="btn-primary" onClick={addNote}>Adicionar</button>
         </div>
       </Modal>
     </div>

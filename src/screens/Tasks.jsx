@@ -224,7 +224,9 @@ const Tasks = () => {
       )}
 
       {/* Modal: Nova tarefa */}
-      <Modal open={showTaskModal} onClose={() => setShowTaskModal(false)} title="Nova tarefa">
+      <Modal open={showTaskModal} onClose={() => setShowTaskModal(false)} title="Nova tarefa"
+        footer={<button className="btn-primary" onClick={addTask}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="O que precisa ser feito?" value={newTask.text} onChange={e => setNewTask(t => ({ ...t, text: e.target.value }))} autoFocus />
           <input className="input" type="date" value={newTask.date} onChange={e => setNewTask(t => ({ ...t, date: e.target.value }))} />
@@ -234,16 +236,16 @@ const Tasks = () => {
             <option value="baixa">Baixa prioridade</option>
           </select>
           <input className="input" placeholder="Categoria (opcional)" value={newTask.category} onChange={e => setNewTask(t => ({ ...t, category: e.target.value }))} />
-          <button className="btn-primary" onClick={addTask}>Adicionar</button>
         </div>
       </Modal>
 
       {/* Modal: Novo hábito */}
-      <Modal open={showHabitModal} onClose={() => setShowHabitModal(false)} title="Novo hábito">
+      <Modal open={showHabitModal} onClose={() => setShowHabitModal(false)} title="Novo hábito"
+        footer={<button className="btn-primary" onClick={addHabit}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome do hábito" value={newHabit.name} onChange={e => setNewHabit(h => ({ ...h, name: e.target.value }))} autoFocus />
           <input className="input" placeholder="Emoji (ex: 🏃‍♂️)" value={newHabit.icon} onChange={e => setNewHabit(h => ({ ...h, icon: e.target.value }))} />
-          <button className="btn-primary" onClick={addHabit}>Adicionar</button>
         </div>
       </Modal>
     </div>

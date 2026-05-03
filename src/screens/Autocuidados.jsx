@@ -246,7 +246,9 @@ const Autocuidados = ({ onBack }) => {
       </div>
 
       {/* Modal Capilar */}
-      <Modal open={showCapModal} onClose={() => setShowCapModal(false)} title="Novo produto capilar">
+      <Modal open={showCapModal} onClose={() => setShowCapModal(false)} title="Novo produto capilar"
+        footer={<button className="btn-primary" onClick={addCapilar}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome do produto" value={capForm.nome} onChange={e => setCapForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
           <select className="input" value={capForm.funcao} onChange={e => setCapForm(f => ({ ...f, funcao: e.target.value }))}>
@@ -262,12 +264,13 @@ const Autocuidados = ({ onBack }) => {
               ))}
             </div>
           </div>
-          <button className="btn-primary" onClick={addCapilar}>Adicionar</button>
         </div>
       </Modal>
 
       {/* Modal Skincare */}
-      <Modal open={showSkModal} onClose={() => setShowSkModal(false)} title="Novo produto skincare">
+      <Modal open={showSkModal} onClose={() => setShowSkModal(false)} title="Novo produto skincare"
+        footer={<button className="btn-primary" onClick={addSkincare}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome do produto" value={skForm.nome} onChange={e => setSkForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -280,7 +283,6 @@ const Autocuidados = ({ onBack }) => {
           </div>
           <textarea className="input" placeholder="Para que serve? (benefícios, tipo de pele…)" value={skForm.paraQue} onChange={e => setSkForm(f => ({ ...f, paraQue: e.target.value }))} rows={3} style={{ resize: 'none' }} />
           <textarea className="input" placeholder="Como usar? (quantidade, frequência, como aplicar…)" value={skForm.comoUsar} onChange={e => setSkForm(f => ({ ...f, comoUsar: e.target.value }))} rows={3} style={{ resize: 'none' }} />
-          <button className="btn-primary" onClick={addSkincare}>Adicionar</button>
         </div>
       </Modal>
     </div>
