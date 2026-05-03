@@ -67,7 +67,7 @@ const Shell = ({ children, activeTab, onTabChange, subScreen, userName }) => {
 };
 
 const AppContent = () => {
-  const { authed, loading, userName, login, logout, updateUser } = useAuth();
+  const { authed, loading, userName, login, signup, logout, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
   const [subScreen, setSubScreen] = useState(null);
 
@@ -88,7 +88,7 @@ const AppContent = () => {
   if (!authed) {
     return (
       <div className="app-shell">
-        <Login onLogin={login} />
+        <Login onLogin={login} onSignup={signup} />
       </div>
     );
   }

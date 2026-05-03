@@ -115,10 +115,7 @@ const Perfil = ({ onBack, onLogout, onUpdateUser }) => {
 
   const savePassword = async () => {
     if (newPass !== confPass) { toast('As senhas não coincidem'); return; }
-    if (newPass.length < 4) { toast('Senha muito curta'); return; }
-    const stored = await get('auth:user');
-    const currentStored = stored?.password || '1234';
-    if (curPass !== currentStored) { toast('Senha atual incorreta'); return; }
+    if (newPass.length < 6) { toast('Senha muito curta (mínimo 6 caracteres)'); return; }
     await onUpdateUser({ password: newPass });
     setCurPass(''); setNewPass(''); setConfPass('');
     setModal(null);
