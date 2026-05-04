@@ -332,14 +332,15 @@ const Utilitarios = ({ onBack }) => {
         )}
       </div>
 
-      <Modal open={showCdModal} onClose={() => setShowCdModal(false)} title="Nova contagem regressiva">
+      <Modal open={showCdModal} onClose={() => setShowCdModal(false)} title="Nova contagem regressiva"
+        footer={<button className="btn-primary" onClick={addCountdown}>Criar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Ex: Viagem para o Japão" value={newCd.label} onChange={e => setNewCd(c => ({ ...c, label: e.target.value }))} autoFocus />
           <div>
             <label style={{ fontSize: 12, color: 'var(--text2)', fontWeight: 500, display: 'block', marginBottom: 6 }}>Data do evento</label>
             <input className="input" type="date" value={newCd.date} onChange={e => setNewCd(c => ({ ...c, date: e.target.value }))} />
           </div>
-          <button className="btn-primary" onClick={addCountdown}>Criar</button>
         </div>
       </Modal>
     </div>

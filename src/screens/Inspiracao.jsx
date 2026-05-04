@@ -612,16 +612,19 @@ const Inspiracao = ({ onBack }) => {
         )}
       </div>
 
-      <Modal open={showPaletteModal} onClose={()=>setShowPaletteModal(false)} title="Nova paleta">
+      <Modal open={showPaletteModal} onClose={()=>setShowPaletteModal(false)} title="Nova paleta"
+        footer={<button className="btn-primary" onClick={addPalette}>Salvar paleta</button>}
+      >
         <div style={{ display:'flex',flexDirection:'column',gap:12 }}>
           <input className="input" placeholder="Nome da paleta" value={newPalette.name} onChange={e=>setNewPalette(p=>({...p,name:e.target.value}))} autoFocus/>
           <div><div style={{ fontSize:12,color:'var(--text2)',fontWeight:500,marginBottom:8 }}>Cores</div><ColorRows colors={newPalette.colors} onHex={updatePH} onName={updatePN} onRemove={removePC}/><button onClick={addPC} style={{ marginTop:10,background:'none',border:'1.5px dashed var(--line)',borderRadius:'var(--r-sm)',padding:'8px 14px',cursor:'pointer',color:'var(--text3)',fontSize:13,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6,width:'100%',justifyContent:'center' }}><Icon name="plus" size={14}/> Adicionar cor</button></div>
-          <button className="btn-primary" onClick={addPalette}>Salvar paleta</button>
         </div>
       </Modal>
 
-      <Modal open={!!editPalette} onClose={()=>setEditPalette(null)} title="Editar paleta">
-        {editPalette&&(<div style={{ display:'flex',flexDirection:'column',gap:12 }}><input className="input" value={editPalette.name} onChange={e=>setEditPalette(p=>({...p,name:e.target.value}))}/><div><div style={{ fontSize:12,color:'var(--text2)',fontWeight:500,marginBottom:8 }}>Cores</div><ColorRows colors={editPalette.colors} onHex={updateEH} onName={updateEN} onRemove={removeEC}/><button onClick={addEC} style={{ marginTop:10,background:'none',border:'1.5px dashed var(--line)',borderRadius:'var(--r-sm)',padding:'8px 14px',cursor:'pointer',color:'var(--text3)',fontSize:13,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6,width:'100%',justifyContent:'center' }}><Icon name="plus" size={14}/> Adicionar cor</button></div><button className="btn-primary" onClick={saveEP}>Salvar</button></div>)}
+      <Modal open={!!editPalette} onClose={()=>setEditPalette(null)} title="Editar paleta"
+        footer={<button className="btn-primary" onClick={saveEP}>Salvar</button>}
+      >
+        {editPalette&&(<div style={{ display:'flex',flexDirection:'column',gap:12 }}><input className="input" value={editPalette.name} onChange={e=>setEditPalette(p=>({...p,name:e.target.value}))}/><div><div style={{ fontSize:12,color:'var(--text2)',fontWeight:500,marginBottom:8 }}>Cores</div><ColorRows colors={editPalette.colors} onHex={updateEH} onName={updateEN} onRemove={removeEC}/><button onClick={addEC} style={{ marginTop:10,background:'none',border:'1.5px dashed var(--line)',borderRadius:'var(--r-sm)',padding:'8px 14px',cursor:'pointer',color:'var(--text3)',fontSize:13,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6,width:'100%',justifyContent:'center' }}><Icon name="plus" size={14}/> Adicionar cor</button></div></div>)}
       </Modal>
     </div>
   );

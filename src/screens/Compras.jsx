@@ -366,7 +366,9 @@ const Compras = ({ onBack }) => {
         )}
       </div>
 
-      <Modal open={showItemModal} onClose={() => setShowItemModal(false)} title="Novo item">
+      <Modal open={showItemModal} onClose={() => setShowItemModal(false)} title="Novo item"
+        footer={<button className="btn-primary" onClick={addItem}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome do item" value={newItem.nome} onChange={e => setNewItem(n => ({ ...n, nome: e.target.value }))} autoFocus />
           <input className="input" placeholder="Quantidade (ex: 2un, 1kg)" value={newItem.qty} onChange={e => setNewItem(n => ({ ...n, qty: e.target.value }))} />
@@ -377,19 +379,21 @@ const Compras = ({ onBack }) => {
             onValueChange={v => setNewItem(n => ({ ...n, price: v }))}
             onCurrencyChange={c => setNewItem(n => ({ ...n, currency: c }))}
           />
-          <button className="btn-primary" onClick={addItem}>Adicionar</button>
         </div>
       </Modal>
 
-      <Modal open={showListModal} onClose={() => setShowListModal(false)} title="Nova lista">
+      <Modal open={showListModal} onClose={() => setShowListModal(false)} title="Nova lista"
+        footer={<button className="btn-primary" onClick={addList}>Criar lista</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome da lista" value={newList.nome} onChange={e => setNewList(n => ({ ...n, nome: e.target.value }))} autoFocus />
           <input className="input" placeholder="Emoji (ex: 🛒)" value={newList.emoji} onChange={e => setNewList(n => ({ ...n, emoji: e.target.value }))} />
-          <button className="btn-primary" onClick={addList}>Criar lista</button>
         </div>
       </Modal>
 
-      <Modal open={showRecModal} onClose={() => setShowRecModal(false)} title="Novo item recorrente">
+      <Modal open={showRecModal} onClose={() => setShowRecModal(false)} title="Novo item recorrente"
+        footer={<button className="btn-primary" onClick={addRecorrente}>Salvar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome do item (ex: Leite)" value={newRec.nome} onChange={e => setNewRec(r => ({ ...r, nome: e.target.value }))} autoFocus />
           <input className="input" placeholder="Quantidade (ex: 2un, 1kg)" value={newRec.qty} onChange={e => setNewRec(r => ({ ...r, qty: e.target.value }))} />
@@ -400,11 +404,12 @@ const Compras = ({ onBack }) => {
             onValueChange={v => setNewRec(r => ({ ...r, price: v }))}
             onCurrencyChange={c => setNewRec(r => ({ ...r, currency: c }))}
           />
-          <button className="btn-primary" onClick={addRecorrente}>Salvar</button>
         </div>
       </Modal>
 
-      <Modal open={showWishModal} onClose={() => setShowWishModal(false)} title="Adicionar à wishlist">
+      <Modal open={showWishModal} onClose={() => setShowWishModal(false)} title="Adicionar à wishlist"
+        footer={<button className="btn-primary" onClick={addWish}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome do item" value={newWish.name} onChange={e => setNewWish(n => ({ ...n, name: e.target.value }))} autoFocus />
           <input className="input" placeholder="Preço (ex: R$ 150)" value={newWish.price} onChange={e => setNewWish(n => ({ ...n, price: e.target.value }))} />
@@ -414,7 +419,6 @@ const Compras = ({ onBack }) => {
             <option value="media">Média prioridade</option>
             <option value="baixa">Baixa prioridade</option>
           </select>
-          <button className="btn-primary" onClick={addWish}>Adicionar</button>
         </div>
       </Modal>
     </div>

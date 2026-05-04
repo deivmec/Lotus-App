@@ -77,7 +77,9 @@ const LinksRapidos = ({ onBack }) => {
         </button>
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo link">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo link"
+        footer={<button className="btn-primary" onClick={addLink}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome (ex: Notion)" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
           <input className="input" placeholder="URL (ex: notion.so)" value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} />
@@ -99,7 +101,6 @@ const LinksRapidos = ({ onBack }) => {
             <option value="mail">E-mail</option>
             <option value="layers">App</option>
           </select>
-          <button className="btn-primary" onClick={addLink}>Adicionar</button>
         </div>
       </Modal>
     </div>

@@ -112,7 +112,9 @@ const Portfolio = ({ onBack }) => {
         )}
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo projeto">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo projeto"
+        footer={<button className="btn-primary" onClick={addProject}>Criar projeto</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', gap: 10 }}>
             <input className="input" placeholder="Emoji" value={form.emoji} onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))} style={{ width: 64 }} />
@@ -126,7 +128,6 @@ const Portfolio = ({ onBack }) => {
           </select>
           <input className="input" placeholder="Link (opcional)" value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} />
           <input className="input" placeholder="Tags (vírgula p/ separar)" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} />
-          <button className="btn-primary" onClick={addProject}>Criar projeto</button>
         </div>
       </Modal>
     </div>

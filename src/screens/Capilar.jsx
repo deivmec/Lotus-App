@@ -125,7 +125,9 @@ const Capilar = ({ onBack }) => {
         </button>
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo produto">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo produto"
+        footer={<button className="btn-primary" onClick={addProduto}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Nome do produto" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
           <select className="input" value={form.funcao} onChange={e => setForm(f => ({ ...f, funcao: e.target.value }))}>
@@ -141,7 +143,6 @@ const Capilar = ({ onBack }) => {
               ))}
             </div>
           </div>
-          <button className="btn-primary" onClick={addProduto}>Adicionar</button>
         </div>
       </Modal>
     </div>

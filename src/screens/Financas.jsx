@@ -343,7 +343,9 @@ const Financas = ({ onBack }) => {
       </div>
 
       {/* Modal: novo lançamento */}
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo lançamento">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo lançamento"
+        footer={<button className="btn-primary" onClick={addTransaction}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {['expense', 'income'].map(type => (
@@ -358,12 +360,13 @@ const Financas = ({ onBack }) => {
             {cats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <input className="input" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
-          <button className="btn-primary" onClick={addTransaction}>Adicionar</button>
         </div>
       </Modal>
 
       {/* Modal: novo objetivo */}
-      <Modal open={showGoalModal} onClose={() => setShowGoalModal(false)} title="Novo objetivo de poupança">
+      <Modal open={showGoalModal} onClose={() => setShowGoalModal(false)} title="Novo objetivo de poupança"
+        footer={<button className="btn-primary" onClick={addObjetivo}>Criar objetivo</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', gap: 10 }}>
             <input className="input" placeholder="🎯" value={goalForm.emoji} onChange={e => setGoalForm(f => ({ ...f, emoji: e.target.value }))} style={{ width: 64 }} />
@@ -382,7 +385,6 @@ const Financas = ({ onBack }) => {
               ))}
             </div>
           </div>
-          {/* Preview */}
           {goalForm.name && (
             <div style={{ background: goalForm.color + '15', borderRadius: 'var(--r-sm)', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 22 }}>{goalForm.emoji}</span>
@@ -392,22 +394,24 @@ const Financas = ({ onBack }) => {
               </div>
             </div>
           )}
-          <button className="btn-primary" onClick={addObjetivo}>Criar objetivo</button>
         </div>
       </Modal>
 
       {/* Modal: depósito em objetivo */}
-      <Modal open={!!goalDepModal} onClose={() => setGoalDepModal(null)} title={activeGoal ? `Depositar em "${activeGoal.name}"` : 'Depositar'}>
+      <Modal open={!!goalDepModal} onClose={() => setGoalDepModal(null)} title={activeGoal ? `Depositar em "${activeGoal.name}"` : 'Depositar'}
+        footer={<button className="btn-primary" onClick={() => addGoalDeposit(goalDepModal)}>Registrar depósito</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" type="number" placeholder="Valor (R$)" value={goalDepForm.valor} onChange={e => setGoalDepForm(f => ({ ...f, valor: e.target.value }))} autoFocus />
           <input className="input" type="date" value={goalDepForm.data} onChange={e => setGoalDepForm(f => ({ ...f, data: e.target.value }))} />
           <input className="input" placeholder="Nota (opcional)" value={goalDepForm.nota} onChange={e => setGoalDepForm(f => ({ ...f, nota: e.target.value }))} />
-          <button className="btn-primary" onClick={() => addGoalDeposit(goalDepModal)}>Registrar depósito</button>
         </div>
       </Modal>
 
       {/* Modal: gasto planejado */}
-      <Modal open={showPlanModal} onClose={() => setShowPlanModal(false)} title="Gasto planejado">
+      <Modal open={showPlanModal} onClose={() => setShowPlanModal(false)} title="Gasto planejado"
+        footer={<button className="btn-primary" onClick={addPlanned}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Descrição (ex: Aluguel)" value={planForm.desc} onChange={e => setPlanForm(f => ({ ...f, desc: e.target.value }))} autoFocus />
           <input className="input" type="number" placeholder="Valor (R$)" value={planForm.amount} onChange={e => setPlanForm(f => ({ ...f, amount: e.target.value }))} />
@@ -415,7 +419,6 @@ const Financas = ({ onBack }) => {
           <select className="input" value={planForm.category} onChange={e => setPlanForm(f => ({ ...f, category: e.target.value }))}>
             {cats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-          <button className="btn-primary" onClick={addPlanned}>Adicionar</button>
         </div>
       </Modal>
     </div>

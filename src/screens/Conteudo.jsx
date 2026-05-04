@@ -107,7 +107,9 @@ const Conteudo = ({ onBack }) => {
         )}
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo item">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo item"
+        footer={<button className="btn-primary" onClick={addItem}>Adicionar</button>}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input className="input" placeholder="Título" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} autoFocus />
           <input className="input" placeholder="Autor / Canal" value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} />
@@ -126,7 +128,6 @@ const Conteudo = ({ onBack }) => {
             <option value="concluído">Concluído</option>
           </select>
           <input className="input" placeholder="Link (opcional)" value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} />
-          <button className="btn-primary" onClick={addItem}>Adicionar</button>
         </div>
       </Modal>
     </div>
