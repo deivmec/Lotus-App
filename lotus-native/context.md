@@ -307,24 +307,24 @@ if (!authed) return <Redirect href="/login" />;
 - [x] `app/(tabs)/_layout.tsx` — tab bar
 - [x] `package.json`, `app.json`, `eas.json`
 
-### COMPONENTES (a fazer)
-- [ ] `components/Icon.tsx` — converter SVGs de Icon.jsx para react-native-svg
-- [ ] `components/Modal.tsx` — bottom sheet nativo
-- [ ] `components/BackHeader.tsx`
-- [ ] `components/Toast.tsx`
-- [ ] `components/Checkbox.tsx`
-- [ ] `components/ProgressBar.tsx`
-- [ ] `components/Tag.tsx`
+### COMPONENTES (feitos)
+- [x] `components/Icon.tsx` — 74 ícones SVG via react-native-svg
+- [x] `components/Modal.tsx` — bottom sheet com KeyboardAvoidingView
+- [x] `components/BackHeader.tsx` — cabeçalho com botão voltar + safe area
+- [x] `components/Toast.tsx` — ToastProvider + useToast + Animated fade
+- [x] `components/Checkbox.tsx`
+- [x] `components/ProgressBar.tsx`
+- [x] `components/Tag.tsx` — inclui PriorityTag
 
 ### TELAS — ordem sugerida (simples → complexo)
 | Prioridade | Tela | Linhas web | Complexidade | Status |
 |---|---|---|---|---|
-| 1 | `login.tsx` | 174 | Baixa | [ ] |
-| 2 | `screens/mais.tsx` | 73 | Baixa | [ ] |
-| 3 | `screens/links.tsx` | 110 | Baixa | [ ] |
+| 1 | `login.tsx` | 174 | Baixa | [x] |
+| 2 | `screens/mais.tsx` | 73 | Baixa | [x] |
+| 3 | `screens/links.tsx` | 110 | Baixa | [x] |
 | 4 | `screens/notificacoes.tsx` | 117 | Baixa | [ ] |
-| 5 | `screens/conteudo.tsx` | 137 | Baixa | [ ] |
-| 6 | `screens/portfolio.tsx` | 137 | Baixa | [ ] |
+| 5 | `screens/conteudo.tsx` | 137 | Baixa | [x] |
+| 6 | `screens/portfolio.tsx` | 137 | Baixa | [x] |
 | 7 | `screens/capilar.tsx` | 152 | Baixa | [ ] |
 | 8 | `screens/autocuidados.tsx` | 292 | Média | [ ] |
 | 9 | `screens/utilitarios.tsx` | 350 | Média | [ ] |
@@ -441,11 +441,12 @@ eas submit --platform ios
 5. Use os tokens de `lib/theme.ts`
 6. Marque a tela como `[x]` na tabela da seção 8 ao concluir
 
-**Próxima tela a converter:** `components/Icon.tsx` (deve ser feita antes de qualquer tela, pois é usada em tudo)
+**Próxima tela a converter:** `screens/notificacoes.tsx` → `screens/capilar.tsx` → `screens/autocuidados.tsx` (prioridade 4, 7, 8)
 
 **Referências:**
-- Ícones originais: `src/components/Icon.jsx`
-- Todos os SVGs inline do Icon.jsx precisam virar `<Svg>` do react-native-svg
+- Notificações web: `src/screens/Notificacoes.jsx`
+- Capilar web: `src/screens/Capilar.jsx`
+- Autocuidados web: `src/screens/Autocuidados.jsx`
 
 ---
 
