@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Lotus",
+    "slug": "lotus",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "lotus",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F4F0"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.lotus.app",
+      "buildNumber": "1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F7F4F0"
+      },
+      "package": "com.lotus.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Lotus precisa acessar suas fotos para personalizar seu perfil e salvar documentos."
+        }
+      ],
+      [
+        "expo-secure-store"
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
