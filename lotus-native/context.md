@@ -322,18 +322,18 @@ if (!authed) return <Redirect href="/login" />;
 | 1 | `login.tsx` | 174 | Baixa | [x] |
 | 2 | `screens/mais.tsx` | 73 | Baixa | [x] |
 | 3 | `screens/links.tsx` | 110 | Baixa | [x] |
-| 4 | `screens/notificacoes.tsx` | 117 | Baixa | [ ] |
+| 4 | `screens/notificacoes.tsx` | 117 | Baixa | [x] |
 | 5 | `screens/conteudo.tsx` | 137 | Baixa | [x] |
 | 6 | `screens/portfolio.tsx` | 137 | Baixa | [x] |
-| 7 | `screens/capilar.tsx` | 152 | Baixa | [ ] |
-| 8 | `screens/autocuidados.tsx` | 292 | Média | [ ] |
-| 9 | `screens/utilitarios.tsx` | 350 | Média | [ ] |
+| 7 | `screens/capilar.tsx` | 152 | Baixa | [x] |
+| 8 | `screens/autocuidados.tsx` | 292 | Média | [x] |
+| 9 | `screens/utilitarios.tsx` | 350 | Média | [x] |
 | 10 | `screens/calendario.tsx` | 269 | Média | [ ] |
-| 11 | `(tabs)/tasks.tsx` | 255 | Média | [ ] |
+| 11 | `(tabs)/tasks.tsx` | 255 | Média | [x] |
 | 12 | `screens/viagem.tsx` | 411 | Média | [ ] |
 | 13 | `screens/cronograma.tsx` | 237 | Média | [ ] |
 | 14 | `screens/idiomas.tsx` | 426 | Média | [ ] |
-| 15 | `screens/compras.tsx` | 428 | Média | [ ] |
+| 15 | `screens/compras.tsx` | 428 | Média | [x] |
 | 16 | `screens/financas.tsx` | 428 | Alta | [ ] |
 | 17 | `screens/cofre.tsx` | 384 | Alta | [ ] |
 | 18 | `screens/busca.tsx` | 189 | Alta | [ ] |
@@ -441,12 +441,13 @@ eas submit --platform ios
 5. Use os tokens de `lib/theme.ts`
 6. Marque a tela como `[x]` na tabela da seção 8 ao concluir
 
-**Próxima tela a converter:** `screens/notificacoes.tsx` → `screens/capilar.tsx` → `screens/autocuidados.tsx` (prioridade 4, 7, 8)
+**Próxima tela a converter:** `screens/calendario.tsx` → `screens/viagem.tsx` → `screens/cronograma.tsx` → `screens/idiomas.tsx` (complexidade média)
 
 **Referências:**
-- Notificações web: `src/screens/Notificacoes.jsx`
-- Capilar web: `src/screens/Capilar.jsx`
-- Autocuidados web: `src/screens/Autocuidados.jsx`
+- Calendário web: `src/screens/Calendario.jsx`
+- Viagem web: `src/screens/Viagem.jsx`
+- Cronograma web: `src/screens/CronogramaAlimentar.jsx`
+- Idiomas web: `src/screens/Idiomas.jsx`
 
 ---
 
