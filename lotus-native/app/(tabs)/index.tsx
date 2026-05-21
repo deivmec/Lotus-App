@@ -441,7 +441,8 @@ const CardapioWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
   const [plano] = useStorage<Record<string, any>>('cronograma:refeicoes', {});
   const hoje   = plano[TODAY_DAY_ID] || {};
-  const filled = REFEICOES_MAP.filter(r => hoje[r.id]);
+  const getRefeicaoText = (v: any) => typeof v === 'object' && v !== null ? (v as any).texto : v;
+  const filled = REFEICOES_MAP.filter(r => getRefeicaoText(hoje[r.id]));
   const items  = size === 'large' ? REFEICOES_MAP : filled;
 
   if (size === 'small') {
@@ -462,11 +463,11 @@ const CardapioWidget = ({ size }: { size: string }) => {
       ) : (
         <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
           {items.map((r, i) => (
-            <View key={r.id} style={[s.listRow, i < items.length - 1 && s.itemBorder, { opacity: !hoje[r.id] && size === 'large' ? 0.4 : 1 }]}>
+            <View key={r.id} style={[s.listRow, i < items.length - 1 && s.itemBorder, { opacity: !getRefeicaoText(hoje[r.id]) && size === 'large' ? 0.4 : 1 }]}>
               <Text style={{ fontSize: 15, flexShrink: 0 }}>{r.emoji}</Text>
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={s.refLabel}>{r.label.toUpperCase()}</Text>
-                <Text style={s.itemText} numberOfLines={1}>{hoje[r.id] || '—'}</Text>
+                <Text style={s.itemText} numberOfLines={1}>{getRefeicaoText(hoje[r.id]) || '—'}</Text>
               </View>
             </View>
           ))}

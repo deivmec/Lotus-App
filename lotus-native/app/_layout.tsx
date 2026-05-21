@@ -25,7 +25,6 @@ function RootLayoutInner() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" />
-        <Stack.Screen name="screens/[id]" options={{ animation: 'slide_from_right' }} />
       </Stack>
     </>
   );
