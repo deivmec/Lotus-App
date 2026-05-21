@@ -114,6 +114,7 @@ const Widget = ({ emoji, title, linkLabel, onLink, children }: {
   emoji: string; title: string; linkLabel?: string; onLink?: () => void; children: any;
 }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   return (
     <View style={s.widgetWrap}>
       <View style={s.widgetHeader}>
@@ -133,6 +134,7 @@ const Widget = ({ emoji, title, linkLabel, onLink, children }: {
 
 const ProgressBar = ({ pct, color }: { pct: number; color: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   return (
     <View style={[s.progressTrack, { backgroundColor: colors.bg3 }]}>
       <View style={[s.progressFill, { width: `${Math.min(pct * 100, 100)}%` as any, backgroundColor: color }]} />
@@ -163,6 +165,7 @@ const useCountdown = (deadline: string) => {
 
 const CountdownItem = ({ task }: { task: any }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const t = useCountdown(task.deadline);
   const isUrgent = !t.expired && t.h < 3;
   const fmt2 = (n: number) => String(n).padStart(2, '0');
@@ -189,6 +192,7 @@ const CountdownItem = ({ task }: { task: any }) => {
 // ── Humor ──
 const MoodWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [moods, saveMoods] = useStorage<any[]>('saude:moods', []);
   const todayMood = moods.find(m => m.date === TODAY);
   const setMood = (level: number) => saveMoods(ms => [...ms.filter(m => m.date !== TODAY), { date: TODAY, level }]);
@@ -250,6 +254,7 @@ const MoodWidget = ({ size }: { size: string }) => {
 // ── Nota rápida ──
 const QuickNoteWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [nota, setNota] = useState('');
   const [quickNotes, saveQuickNotes] = useStorage<any[]>('home:quicknotes', []);
   const salvar = () => {
@@ -299,6 +304,7 @@ const QuickNoteWidget = ({ size }: { size: string }) => {
 // ── Resumo do dia ──
 const StatsWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [tasks]     = useStorage<any[]>('tasks:items', []);
   const [habits]    = useStorage<any[]>('habits:items', []);
   const [events]    = useStorage<any[]>('events:items', []);
@@ -333,6 +339,7 @@ const StatsWidget = ({ size }: { size: string }) => {
 // ── Tarefas do dia ──
 const TarefasWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [tasks, saveTasks] = useStorage<any[]>('tasks:items', []);
   const toggle = (id: string) => saveTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
   const maxItems = size === 'large' ? 8 : 4;
@@ -380,6 +387,7 @@ const TarefasWidget = ({ size }: { size: string }) => {
 // ── Hábitos ──
 const HabitosWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [habits] = useStorage<any[]>('habits:items', []);
   const [habitLogs, saveHabitLogs] = useStorage<Record<string, boolean>>('habits:logs', {});
   const doneCount = habits.filter(h => habitLogs[`${h.id}:${TODAY}`]).length;
@@ -439,6 +447,7 @@ const HabitosWidget = ({ size }: { size: string }) => {
 // ── Cardápio de hoje ──
 const CardapioWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [plano] = useStorage<Record<string, any>>('cronograma:refeicoes', {});
   const hoje   = plano[TODAY_DAY_ID] || {};
   const getRefeicaoText = (v: any) => typeof v === 'object' && v !== null ? (v as any).texto : v;
@@ -480,6 +489,7 @@ const CardapioWidget = ({ size }: { size: string }) => {
 // ── Contagem regressiva ──
 const ContagemWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [countdowns] = useStorage<any[]>('utilitarios:countdowns', []);
   const base = new Date(); base.setHours(0, 0, 0, 0);
   const upcoming = countdowns
@@ -554,6 +564,7 @@ const ContagemWidget = ({ size }: { size: string }) => {
 // ── Prazos urgentes ──
 const UrgentesWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [tasks] = useStorage<any[]>('tasks:items', []);
   const now = new Date();
   const maxItems = size === 'large' ? 5 : 3;
@@ -595,6 +606,7 @@ const UrgentesWidget = ({ size }: { size: string }) => {
 // ── Agenda ──
 const AgendaWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [events] = useStorage<any[]>('events:items', []);
   const maxItems = size === 'large' ? 6 : 3;
   const todayEvents = events.filter(e => e.date === TODAY).sort((a, b) => a.time > b.time ? 1 : -1);
@@ -633,6 +645,7 @@ const AgendaWidget = ({ size }: { size: string }) => {
 // ── Finanças ──
 const FinancasWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [transactions] = useStorage<any[]>('financas:transacoes', []);
   const [cats]         = useStorage<any[]>('financas:categorias', []);
   const monthTx        = transactions.filter(t => t.date?.startsWith(THIS_MONTH));
@@ -680,6 +693,7 @@ const FinancasWidget = ({ size }: { size: string }) => {
 // ── Compras ──
 const ComprasWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [listas]  = useStorage<any[]>('compras:listas', []);
   const curList   = listas[0];
   const pending   = curList?.itens?.filter((i: any) => !i.done) || [];
@@ -725,6 +739,7 @@ const ComprasWidget = ({ size }: { size: string }) => {
 // ── Conteúdo ──
 const ConteudoWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [content] = useStorage<any[]>('conteudo:items', []);
   const inProgress = content.filter(c => c.status === 'consumindo');
   const maxItems = size === 'large' ? 6 : 3;
@@ -765,6 +780,7 @@ const ConteudoWidget = ({ size }: { size: string }) => {
 // ── Notas recentes ──
 const NotasWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [notes] = useStorage<any[]>('notes:items', []);
   const maxItems = size === 'small' ? 1 : size === 'large' ? 4 : 2;
 
@@ -808,6 +824,7 @@ const NotasWidget = ({ size }: { size: string }) => {
 // ── Diário ──
 const DiarioWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [journal] = useStorage<any[]>('journal:items', []);
   const todayEntry = journal.find(j => j.date === TODAY);
   const maxChars = size === 'large' ? 400 : 140;
@@ -847,6 +864,7 @@ const DiarioWidget = ({ size }: { size: string }) => {
 // ── Saúde ──
 const SaudeWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [meds]    = useStorage<any[]>('saude:meds', []);
   const [medLogs] = useStorage<Record<string, boolean>>('saude:medlogs', {});
   const [treinos] = useStorage<any[]>('saude:treinos', []);
@@ -905,6 +923,7 @@ const SaudeWidget = ({ size }: { size: string }) => {
 // ── Viagem ──
 const ViagemWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [destinos] = useStorage<any[]>('viagem:destinos', []);
   const base = new Date(); base.setHours(0, 0, 0, 0);
   const upcoming = destinos
@@ -963,6 +982,7 @@ const ViagemWidget = ({ size }: { size: string }) => {
 // ── Inspiração ──
 const InspiracaoWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const [paletas] = useStorage<any[]>('inspiracao:paletas', []);
   const normColor = (c: any) => typeof c === 'string' ? { hex: c, name: '' } : c;
 
@@ -1016,6 +1036,7 @@ const InspiracaoWidget = ({ size }: { size: string }) => {
 // ── Acesso rápido ──
 const AcessoWidget = ({ size }: { size: string }) => {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const items = size === 'small' ? QUICK_ACCESS.slice(0, 4) : QUICK_ACCESS;
   return (
     <Widget emoji="🔗" title="Acesso rápido">
