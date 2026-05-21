@@ -19,20 +19,8 @@ import Icon from '../../components/Icon';
 import { useToast } from '../../components/Toast';
 import { useStorage } from '../../hooks/useStorage';
 import { useAuth } from '../../hooks/useAuth';
+import { useTheme, ACCENT_PRESETS } from '../../context/ThemeContext';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
-
-// ── constants ─────────────────────────────────────────────────────────────────
-
-const ACCENTS = [
-  { id: 'terra',   label: 'Terra',   color: '#B8784A' },
-  { id: 'sage',    label: 'Sage',    color: '#6A9E6A' },
-  { id: 'ocean',   label: 'Oceano',  color: '#5A7FAE' },
-  { id: 'lavanda', label: 'Lavanda', color: '#8B72BE' },
-  { id: 'coral',   label: 'Coral',   color: '#C4684A' },
-  { id: 'gold',    label: 'Ouro',    color: '#B89B4A' },
-  { id: 'rosa',    label: 'Rosa',    color: '#C4567A' },
-  { id: 'teal',    label: 'Água',    color: '#4A9E95' },
-];
 
 const EMOJI_LIST = [
   '🌸','🌿','🌙','⭐','🔥','💎','🌊','🌺',
@@ -93,9 +81,8 @@ export default function Perfil() {
   const toast = useToast();
   const { updateUser, logout } = useAuth();
 
+  const { dark, toggleDark, accentId, setAccent } = useTheme();
   const [cofrePin, saveCofrePin] = useStorage<string | null>('cofre:pin', null);
-  const [darkMode, setDarkMode] = useStorage<string>('settings:theme', 'light');
-  const [accentId, setAccentId] = useStorage<string>('settings:accent', 'terra');
 
   const [user, setUser] = useState({
     name: '',
@@ -292,8 +279,8 @@ export default function Perfil() {
             <View style={styles.switchRow}>
               <Text style={styles.switchLabel}>Modo escuro</Text>
               <Switch
-                value={darkMode === 'dark'}
-                onValueChange={v => { setDarkMode(v ? 'dark' : 'light'); }}
+                value={dark}
+                onValueChange={() => toggleDark()}
                 trackColor={{ false: colors.bg3, true: colors.accent }}
                 thumbColor={colors.surface}
               />
@@ -303,12 +290,12 @@ export default function Perfil() {
             <View style={styles.accentSection}>
               <Text style={styles.accentTitle}>Cor do app</Text>
               <View style={styles.swatchRow}>
-                {ACCENTS.map(preset => {
+                {ACCENT_PRESETS.map(preset => {
                   const isSelected = accentId === preset.id;
                   return (
                     <TouchableOpacity
                       key={preset.id}
-                      onPress={() => setAccentId(preset.id)}
+                      onPress={() => setAccent(preset.id)}
                       activeOpacity={0.7}
                       style={styles.swatchWrap}
                     >

@@ -7,7 +7,9 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import BackHeader from '../../components/BackHeader';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
@@ -54,6 +56,7 @@ interface Transaction {
   category: string;
   date: string;
   icon?: string;
+  receipt?: string;
 }
 
 interface Category {
@@ -107,7 +110,7 @@ export default function Financas() {
   const [openGoal, setOpenGoal] = useState<string | null>(null);
 
   const [form, setForm] = useState({
-    desc: '', amount: '', category: 'alimentacao', date: today, type: 'expense',
+    desc: '', amount: '', category: 'alimentacao', date: today, type: 'expense', receipt: '',
   });
   const [planForm, setPlanForm] = useState({
     desc: '', amount: '', dueDate: '', category: 'outros',
@@ -142,10 +145,10 @@ export default function Financas() {
       ? -Math.abs(parseFloat(form.amount))
       : Math.abs(parseFloat(form.amount));
     saveTransactions(ts => [
-      { id: newId(), desc: form.desc, amount, category: form.category, date: form.date, icon: form.category },
+      { id: newId(), desc: form.desc, amount, category: form.category, date: form.date, icon: form.category, receipt: form.receipt || undefined },
       ...ts,
     ]);
-    setForm({ desc: '', amount: '', category: 'alimentacao', date: today, type: 'expense' });
+    setForm({ desc: '', amount: '', category: 'alimentacao', date: today, type: 'expense', receipt: '' });
     setShowModal(false);
     toast('Lançamento adicionado');
   };
@@ -158,6 +161,20 @@ export default function Financas() {
         onPress: () => { saveTransactions(ts => ts.filter(t => t.id !== id)); toast('Removido'); },
       },
     ]);
+  };
+
+  const pickReceipt = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      quality: 0.7,
+      base64: true,
+    });
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      const mime = asset.mimeType || 'image/jpeg';
+      const dataUrl = `data:${mime};base64,${asset.base64}`;
+      setForm(f => ({ ...f, receipt: dataUrl }));
+    }
   };
 
   // ─── Goal handlers ─────────────────────────────────────────────────────────
@@ -377,7 +394,14 @@ export default function Financas() {
                       </View>
                       <View style={styles.txBody}>
                         <Text style={styles.txDesc} numberOfLines={1}>{tx.desc}</Text>
-                        <Text style={styles.txDate}>{tx.date}</Text>
+                        <View style={styles.txDateRow}>
+                          <Text style={styles.txDate}>{tx.date}</Text>
+                          {tx.receipt && (
+                            <View style={styles.txReceiptBadge}>
+                              <Icon name="paperclip" size={10} color={colors.text3} />
+                            </View>
+                          )}
+                        </View>
                       </View>
                       <Text style={[styles.txAmount, { color: tx.amount >= 0 ? colors.green : colors.red }]}>
                         {tx.amount >= 0 ? '+' : ''}{fmtMoney(tx.amount)}
@@ -648,6 +672,23 @@ export default function Financas() {
           onChangeText={v => setForm(f => ({ ...f, date: v }))}
           keyboardType="numeric"
         />
+
+        {/* Receipt picker */}
+        <Text style={styles.fieldLabel}>Nota fiscal (opcional)</Text>
+        {form.receipt ? (
+          <View style={styles.receiptPreview}>
+            <Image source={{ uri: form.receipt }} style={styles.receiptThumb} resizeMode="cover" />
+            <TouchableOpacity onPress={() => setForm(f => ({ ...f, receipt: '' }))} style={styles.receiptRemove} activeOpacity={0.7}>
+              <Icon name="x" size={14} color={colors.red} />
+              <Text style={styles.receiptRemoveText}>Remover</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.receiptBtn} onPress={pickReceipt} activeOpacity={0.7}>
+            <Icon name="image" size={16} color={colors.text2} />
+            <Text style={styles.receiptBtnText}>Anexar imagem ou documento</Text>
+          </TouchableOpacity>
+        )}
       </Modal>
 
       {/* ── Modal: novo objetivo ── */}
@@ -983,6 +1024,26 @@ const styles = StyleSheet.create({
   goalPreviewEmoji: { fontSize: 22 },
   goalPreviewName: { fontFamily: fonts.sans, fontSize: 13, fontWeight: '500', color: colors.text },
   goalPreviewTarget: { fontFamily: fonts.sans, fontSize: 12, color: colors.text3 },
+
+  // Transaction date row (with receipt badge)
+  txDateRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
+  txReceiptBadge: {
+    paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4,
+    backgroundColor: colors.bg3,
+  },
+
+  // Receipt picker
+  receiptBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    padding: 14, borderRadius: radius.sm, borderWidth: 1.5,
+    borderColor: colors.line, borderStyle: 'dashed',
+    backgroundColor: colors.bg2,
+  },
+  receiptBtnText: { fontFamily: fonts.sans, fontSize: 13, color: colors.text2 },
+  receiptPreview: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  receiptThumb: { width: 72, height: 72, borderRadius: radius.sm, backgroundColor: colors.bg3 },
+  receiptRemove: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  receiptRemoveText: { fontFamily: fonts.sans, fontSize: 12, color: colors.red },
 
   // Primary button
   btnPrimary: { backgroundColor: colors.text, borderRadius: radius.sm, paddingVertical: 15, alignItems: 'center' },

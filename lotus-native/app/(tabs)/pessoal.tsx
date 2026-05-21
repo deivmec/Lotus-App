@@ -9,6 +9,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
@@ -140,6 +141,11 @@ const padStyles = StyleSheet.create({
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface NoteFolder {
+  id: string;
+  name: string;
+}
+
 interface JournalEntry {
   id: string;
   date: string;
@@ -154,6 +160,7 @@ interface Note {
   tags: string[];
   color: string;
   date: string;
+  folderId?: string;
 }
 
 interface NotePage {
@@ -164,6 +171,7 @@ interface NotePage {
   color: string;
   date?: string;
   isNew: boolean;
+  folderId?: string;
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -177,9 +185,14 @@ export default function PessoalTab() {
   const [journal, saveJournal] = useStorage<JournalEntry[]>('journal:items', []);
   const [journalPin, saveJournalPin] = useStorage<string>('journal:pin', '');
   const [notes, saveNotes] = useStorage<Note[]>('notes:items', []);
+  const [folders, saveFolders] = useStorage<NoteFolder[]>('notes:folders', []);
 
   // Tab
-  const [tab, setTab] = useState<'diario' | 'notas'>('diario');
+  const [tab, setTab] = useState<string>('diario');
+
+  // Folder modal
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
 
   // Search
   const [search, setSearch] = useState('');
@@ -351,6 +364,7 @@ export default function PessoalTab() {
         tags,
         color: notePage.color,
         date,
+        folderId: notePage.folderId,
       };
       saveNotes([newNote, ...notes]);
       toast('Nota adicionada');
@@ -391,15 +405,23 @@ export default function PessoalTab() {
   );
 
   const filteredNotes = useMemo(() => {
-    if (!search.trim()) return notes;
+    let base: Note[];
+    if (tab === 'notas') {
+      base = notes.filter(n => !n.folderId);
+    } else if (tab !== 'diario') {
+      base = notes.filter(n => n.folderId === tab);
+    } else {
+      base = notes;
+    }
+    if (!search.trim()) return base;
     const q = search.toLowerCase();
-    return notes.filter(
+    return base.filter(
       n =>
         n.title.toLowerCase().includes(q) ||
         n.body.toLowerCase().includes(q) ||
         (n.tags || []).some(t => t.toLowerCase().includes(q)),
     );
-  }, [notes, search]);
+  }, [notes, search, tab]);
 
   const noteCardWidth = (width - 2 * spacing.screenPad - 10) / 2;
 
@@ -641,21 +663,43 @@ export default function PessoalTab() {
           <TouchableOpacity
             key={t}
             onPress={() => setTab(t)}
-            style={[
-              listStyles.chip,
-              tab === t && listStyles.chipActive,
-            ]}
+            style={[listStyles.chip, tab === t && listStyles.chipActive]}
           >
-            <Text
-              style={[
-                listStyles.chipText,
-                tab === t && listStyles.chipTextActive,
-              ]}
-            >
+            <Text style={[listStyles.chipText, tab === t && listStyles.chipTextActive]}>
               {t === 'diario' ? 'Diário' : 'Notas'}
             </Text>
           </TouchableOpacity>
         ))}
+        {folders.map(f => (
+          <TouchableOpacity
+            key={f.id}
+            onPress={() => setTab(f.id)}
+            onLongPress={() =>
+              Alert.alert(f.name, 'O que deseja fazer com esta pasta?', [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                  text: 'Excluir pasta',
+                  style: 'destructive',
+                  onPress: () => {
+                    saveFolders(fs => fs.filter(x => x.id !== f.id));
+                    if (tab === f.id) setTab('notas');
+                  },
+                },
+              ])
+            }
+            style={[listStyles.chip, tab === f.id && listStyles.chipActive]}
+          >
+            <Text style={[listStyles.chipText, tab === f.id && listStyles.chipTextActive]}>
+              {f.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity
+          onPress={() => { setNewFolderName(''); setShowFolderModal(true); }}
+          style={listStyles.chipNew}
+        >
+          <Text style={listStyles.chipNewText}>+ Pasta</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Content */}
@@ -848,6 +892,7 @@ export default function PessoalTab() {
                   color: 'cream',
                   date: todayStr,
                   isNew: true,
+                  folderId: tab !== 'notas' ? tab : undefined,
                 })
               }
               style={listStyles.addBtn}
@@ -860,6 +905,46 @@ export default function PessoalTab() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Folder creation modal */}
+      {showFolderModal && (
+        <View style={dateSheetStyles.overlay}>
+          <TouchableOpacity
+            style={StyleSheet.absoluteFillObject}
+            onPress={() => setShowFolderModal(false)}
+            activeOpacity={1}
+          />
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={dateSheetStyles.kav}
+          >
+            <View style={[dateSheetStyles.sheet, { paddingBottom: Math.max(insets.bottom + 16, 32) }]}>
+              <View style={dateSheetStyles.handle} />
+              <Text style={dateSheetStyles.sheetTitle}>Nova pasta</Text>
+              <TextInput
+                value={newFolderName}
+                onChangeText={setNewFolderName}
+                placeholder="Nome da pasta"
+                placeholderTextColor={colors.text3}
+                style={dateSheetStyles.dateInput}
+                autoFocus
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  if (!newFolderName.trim()) return;
+                  const id = newId();
+                  saveFolders(fs => [...fs, { id, name: newFolderName.trim() }]);
+                  setTab(id);
+                  setShowFolderModal(false);
+                }}
+                style={dateSheetStyles.primaryBtn}
+              >
+                <Text style={dateSheetStyles.primaryBtnText}>Criar pasta</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      )}
 
       {/* Date sheet overlay */}
       {showDateSheet && (
@@ -1159,6 +1244,20 @@ const listStyles = StyleSheet.create({
   },
   chipTextActive: {
     color: '#fff',
+  },
+  chipNew: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    borderStyle: 'dashed',
+  },
+  chipNewText: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 13,
+    color: colors.text3,
   },
   scrollContent: {
     paddingHorizontal: spacing.screenPad,
