@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "lotus",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -14,15 +15,21 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.lotus.app",
-      "buildNumber": "1"
+      "bundleIdentifier": "com.lotusapp.lotus",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "O Lotus acessa suas fotos para personalizar seu perfil e salvar documentos no cofre.",
+        "NSCameraUsageDescription": "O Lotus usa a câmera para tirar fotos de documentos.",
+        "CFBundleLocalizations": ["pt-BR"],
+        "CFBundleDevelopmentRegion": "pt_BR"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F7F4F0"
       },
-      "package": "com.lotus.app"
+      "package": "com.lotusapp.lotus"
     },
     "plugins": [
       "expo-router",
@@ -39,6 +46,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "SEU_PROJECT_ID_AQUI"
+      }
     }
   }
 }
