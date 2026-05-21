@@ -6,7 +6,8 @@ import { router } from 'expo-router';
 import BackHeader from '../../components/BackHeader';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const TOPICS = [
   { nav: 'receitas',     icon: 'utensils',   label: 'Receitas',           desc: 'Suas receitas favoritas',         keywords: ['receita','cozinha','comida','prato','ingrediente'] },
@@ -44,6 +45,8 @@ const navTo = (nav: string) => {
 };
 
 export default function Busca() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [query, setQuery] = useState('');
 
   const [v]  = useStorage<any[]>('viagem:destinos', []);
@@ -192,7 +195,7 @@ export default function Busca() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bg,

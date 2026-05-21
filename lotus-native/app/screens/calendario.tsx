@@ -9,16 +9,17 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius } from '../../lib/theme';
+import { colors as lightColors, fonts, radius } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString();
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const WEEK = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
 const CAT_COLORS: Record<string, string> = {
-  pessoal:     colors.accent,
-  trabalho:    colors.blue,
-  saude:       colors.green,
+  pessoal:     lightColors.accent,
+  trabalho:    lightColors.blue,
+  saude:       lightColors.green,
   viagem:      '#C4853A',
   natal:       '#4A8C55',
   aniversario: '#C45680',
@@ -82,6 +83,8 @@ const Sticker = ({ category, size = 16 }: { category: string; size?: number }) =
 };
 
 export default function Calendario() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const { width } = useWindowDimensions();
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
@@ -320,7 +323,7 @@ export default function Calendario() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bg,

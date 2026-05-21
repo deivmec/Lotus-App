@@ -16,7 +16,8 @@ import Icon from '../../components/Icon';
 import ProgressBar from '../../components/ProgressBar';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -28,13 +29,13 @@ const fmtMoney = (v: number) =>
   `R$ ${(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 
 const CATS_DEFAULT = [
-  { id: 'moradia',     name: 'Moradia',     icon: 'home',     limit: 2000, color: colors.accent },
-  { id: 'alimentacao', name: 'Alimentação', icon: 'utensils', limit: 800,  color: colors.green },
-  { id: 'transporte',  name: 'Transporte',  icon: 'car',      limit: 400,  color: colors.blue },
+  { id: 'moradia',     name: 'Moradia',     icon: 'home',     limit: 2000, color: lightColors.accent },
+  { id: 'alimentacao', name: 'Alimentação', icon: 'utensils', limit: 800,  color: lightColors.green },
+  { id: 'transporte',  name: 'Transporte',  icon: 'car',      limit: 400,  color: lightColors.blue },
   { id: 'saude',       name: 'Saúde',       icon: 'heart',    limit: 500,  color: '#C45C4F' },
   { id: 'lazer',       name: 'Lazer',       icon: 'film',     limit: 300,  color: '#7A6EC4' },
   { id: 'educacao',    name: 'Educação',    icon: 'book',     limit: 300,  color: '#5A9EA0' },
-  { id: 'outros',      name: 'Outros',      icon: 'layers',   limit: 300,  color: colors.text3 },
+  { id: 'outros',      name: 'Outros',      icon: 'layers',   limit: 300,  color: lightColors.text3 },
 ];
 
 const GOAL_COLORS = [
@@ -96,6 +97,8 @@ interface Planejado {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Financas() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState('resumo');
 
   const [transactions, saveTransactions] = useStorage<Transaction[]>('financas:transacoes', []);
@@ -858,7 +861,7 @@ export default function Financas() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
 
   // Tab bar

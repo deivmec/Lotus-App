@@ -15,7 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -51,26 +52,30 @@ const stripHtml = (html: string) => html.replace(/<[^>]+>/g, '');
 
 // ─── PinDots ──────────────────────────────────────────────────────────────────
 
-const PinDots = ({ value, error }: { value: string; error: boolean }) => (
-  <View style={pinStyles.dots}>
-    {[0, 1, 2, 3].map(i => (
-      <View
-        key={i}
-        style={[
-          pinStyles.dot,
-          {
-            backgroundColor:
-              value.length > i
-                ? error ? colors.red : colors.accent
-                : colors.line,
-          },
-        ]}
-      />
-    ))}
-  </View>
-);
+const PinDots = ({ value, error }: { value: string; error: boolean }) => {
+  const { colors } = useTheme();
+  const pinStyles = makePinStyles(colors);
+  return (
+    <View style={pinStyles.dots}>
+      {[0, 1, 2, 3].map(i => (
+        <View
+          key={i}
+          style={[
+            pinStyles.dot,
+            {
+              backgroundColor:
+                value.length > i
+                  ? error ? colors.red : colors.accent
+                  : colors.line,
+            },
+          ]}
+        />
+      ))}
+    </View>
+  );
+};
 
-const pinStyles = StyleSheet.create({
+const makePinStyles = (colors: any) => StyleSheet.create({
   dots: {
     flexDirection: 'row',
     gap: 14,
@@ -92,6 +97,8 @@ const PinPad = ({
   value: string;
   onChange: (v: string) => void;
 }) => {
+  const { colors } = useTheme();
+  const padStyles = makePadStyles(colors);
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
   return (
     <View style={padStyles.grid}>
@@ -118,7 +125,7 @@ const PinPad = ({
   );
 };
 
-const padStyles = StyleSheet.create({
+const makePadStyles = (colors: any) => StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -177,6 +184,12 @@ interface NotePage {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function PessoalTab() {
+  const { colors } = useTheme();
+  const overlayStyles = makeOverlayStyles(colors);
+  const noteEditorStyles = makeNoteEditorStyles(colors);
+  const notebookStyles = makeNotebookStyles(colors);
+  const listStyles = makeListStyles(colors);
+  const dateSheetStyles = makeDateSheetStyles(colors);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const toast = useToast();
@@ -1009,7 +1022,7 @@ export default function PessoalTab() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const overlayStyles = StyleSheet.create({
+const makeOverlayStyles = (colors: any) => StyleSheet.create({
   root: {
     position: 'absolute',
     top: 0,
@@ -1055,7 +1068,7 @@ const overlayStyles = StyleSheet.create({
   },
 });
 
-const noteEditorStyles = StyleSheet.create({
+const makeNoteEditorStyles = (colors: any) => StyleSheet.create({
   root: {
     flex: 1,
   },
@@ -1130,7 +1143,7 @@ const noteEditorStyles = StyleSheet.create({
   },
 });
 
-const notebookStyles = StyleSheet.create({
+const makeNotebookStyles = (colors: any) => StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#FAF6ED',
@@ -1202,7 +1215,7 @@ const notebookStyles = StyleSheet.create({
   },
 });
 
-const listStyles = StyleSheet.create({
+const makeListStyles = (colors: any) => StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -1441,7 +1454,7 @@ const listStyles = StyleSheet.create({
   },
 });
 
-const dateSheetStyles = StyleSheet.create({
+const makeDateSheetStyles = (colors: any) => StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.45)',

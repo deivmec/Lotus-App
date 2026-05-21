@@ -16,7 +16,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,9 +77,9 @@ const NIVEIS = ['fácil', 'médio', 'difícil'] as const;
 type Nivel = typeof NIVEIS[number];
 
 const NIVEL_COLORS: Record<Nivel, { bg: string; text: string }> = {
-  fácil: { bg: colors.greenBg, text: colors.green },
-  médio: { bg: colors.blueBg, text: colors.blue },
-  difícil: { bg: colors.redBg, text: colors.red },
+  fácil: { bg: lightColors.greenBg, text: lightColors.green },
+  médio: { bg: lightColors.blueBg, text: lightColors.blue },
+  difícil: { bg: lightColors.redBg, text: lightColors.red },
 };
 
 const newId = () => Date.now().toString();
@@ -90,6 +91,8 @@ const emptyNota = { title: '', body: '' };
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 
 export default function IdiomasScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState<Tab>('vocab');
 
   // Storage
@@ -873,7 +876,7 @@ export default function IdiomasScreen() {
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
 
   // Tabs

@@ -20,7 +20,7 @@ import { useToast } from '../../components/Toast';
 import { useStorage } from '../../hooks/useStorage';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme, ACCENT_PRESETS } from '../../context/ThemeContext';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
 
 const EMOJI_LIST = [
   '🌸','🌿','🌙','⭐','🔥','💎','🌊','🌺',
@@ -38,19 +38,23 @@ interface RowProps {
   isLast?: boolean;
 }
 
-const Row = ({ label, value, onPress, isLast = false }: RowProps) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={[rowStyles.row, !isLast && rowStyles.rowBorder]}
-    activeOpacity={0.7}
-  >
-    <Text style={rowStyles.label}>{label}</Text>
-    <Text style={rowStyles.value} numberOfLines={1}>{value || '—'}</Text>
-    <Icon name="arrow" size={14} color={colors.text3} />
-  </TouchableOpacity>
-);
+const Row = ({ label, value, onPress, isLast = false }: RowProps) => {
+  const { colors } = useTheme();
+  const rowStyles = makeRowStyles(colors);
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[rowStyles.row, !isLast && rowStyles.rowBorder]}
+      activeOpacity={0.7}
+    >
+      <Text style={rowStyles.label}>{label}</Text>
+      <Text style={rowStyles.value} numberOfLines={1}>{value || '—'}</Text>
+      <Icon name="arrow" size={14} color={colors.text3} />
+    </TouchableOpacity>
+  );
+};
 
-const rowStyles = StyleSheet.create({
+const makeRowStyles = (colors: any) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -81,7 +85,8 @@ export default function Perfil() {
   const toast = useToast();
   const { updateUser, logout } = useAuth();
 
-  const { dark, toggleDark, accentId, setAccent } = useTheme();
+  const { dark, toggleDark, accentId, setAccent, colors } = useTheme();
+  const styles = makeStyles(colors);
   const [cofrePin, saveCofrePin] = useStorage<string | null>('cofre:pin', null);
 
   const [user, setUser] = useState({
@@ -682,7 +687,7 @@ export default function Perfil() {
 
 // ── styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: {
     flex: 1,
     backgroundColor: colors.bg,

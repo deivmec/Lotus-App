@@ -7,20 +7,23 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString();
 
 const STATUS_OPTIONS = ['em desenvolvimento', 'concluído', 'pausado'] as const;
 const STATUS_CONFIG: Record<string, { bg: string; color: string }> = {
-  'em desenvolvimento': { bg: colors.blueBg,  color: colors.blue  },
-  'concluído':          { bg: colors.greenBg, color: colors.green },
-  'pausado':            { bg: colors.bg2,      color: colors.text3 },
+  'em desenvolvimento': { bg: lightColors.blueBg,  color: lightColors.blue  },
+  'concluído':          { bg: lightColors.greenBg, color: lightColors.green },
+  'pausado':            { bg: lightColors.bg2,      color: lightColors.text3 },
 };
 
 const emptyForm = { name: '', emoji: '💼', desc: '', link: '', tags: '', status: 'em desenvolvimento' };
 
 export default function PortfolioScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [projects, saveProjects] = useStorage<any[]>('portfolio:items', []);
   const [showModal, setShowModal] = useState(false);
   const [showItemInput, setShowItemInput] = useState<string | null>(null);
@@ -256,7 +259,7 @@ export default function PortfolioScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.screenPad, paddingBottom: 40, gap: 16 },
   empty: { alignItems: 'center', paddingVertical: 60 },

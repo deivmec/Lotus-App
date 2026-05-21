@@ -8,7 +8,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const DIAS = [
   { id: 'seg', label: 'Segunda-feira', short: 'Seg' },
@@ -22,9 +23,9 @@ const DIAS = [
 
 const REFEICOES = [
   { id: 'cafe',   label: 'Café da manhã', emoji: '☕', bg: '#FDF3E0', textColor: '#8B6534' },
-  { id: 'almoco', label: 'Almoço',        emoji: '🥗', bg: colors.greenBg, textColor: colors.green },
-  { id: 'lanche', label: 'Lanche',        emoji: '🍎', bg: colors.accentBg, textColor: colors.accentDk },
-  { id: 'jantar', label: 'Jantar',        emoji: '🍽️', bg: colors.blueBg, textColor: colors.blue },
+  { id: 'almoco', label: 'Almoço',        emoji: '🥗', bg: lightColors.greenBg, textColor: lightColors.green },
+  { id: 'lanche', label: 'Lanche',        emoji: '🍎', bg: lightColors.accentBg, textColor: lightColors.accentDk },
+  { id: 'jantar', label: 'Jantar',        emoji: '🍽️', bg: lightColors.blueBg, textColor: lightColors.blue },
 ];
 
 const TODAY_ID = (['dom','seg','ter','qua','qui','sex','sab'] as const)[new Date().getDay()];
@@ -35,6 +36,8 @@ const EMPTY_DAY: DayPlan = { cafe: '', almoco: '', lanche: '', jantar: '' };
 const DEFAULT_PLAN: Plan = Object.fromEntries(DIAS.map(d => [d.id, { ...EMPTY_DAY }]));
 
 export default function CronogramaAlimentar() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [plano, savePlano] = useStorage<Plan>('cronograma:refeicoes', DEFAULT_PLAN);
   const [editModal, setEditModal] = useState<{ dia: string; ref: string; label: string; emoji: string } | null>(null);
   const [editVal, setEditVal] = useState('');
@@ -284,7 +287,7 @@ export default function CronogramaAlimentar() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bg,

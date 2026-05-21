@@ -8,7 +8,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -18,11 +19,11 @@ const FUNCOES = ['limpeza', 'hidratação', 'nutrição', 'reconstrução', 'fin
 type Funcao = typeof FUNCOES[number];
 
 const FUNCAO_CORES: Record<Funcao, { bg: string; color: string }> = {
-  limpeza:      { bg: colors.blueBg,  color: colors.blue    },
-  hidratação:   { bg: colors.blueBg,  color: colors.blue    },
-  nutrição:     { bg: colors.accentBg, color: colors.accentDk },
-  reconstrução: { bg: colors.redBg,   color: colors.red     },
-  finalização:  { bg: colors.greenBg, color: colors.green   },
+  limpeza:      { bg: lightColors.blueBg,  color: lightColors.blue    },
+  hidratação:   { bg: lightColors.blueBg,  color: lightColors.blue    },
+  nutrição:     { bg: lightColors.accentBg, color: lightColors.accentDk },
+  reconstrução: { bg: lightColors.redBg,   color: lightColors.red     },
+  finalização:  { bg: lightColors.greenBg, color: lightColors.green   },
 };
 
 const FUNCAO_LABELS: Record<Funcao, string> = {
@@ -64,6 +65,8 @@ interface FuncaoTagProps {
 }
 
 const FuncaoTag = ({ funcao, small }: FuncaoTagProps) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const c = FUNCAO_CORES[funcao] ?? { bg: colors.bg2, color: colors.text3 };
   return (
     <View style={[styles.tag, { backgroundColor: c.bg }, small && styles.tagSmall]}>
@@ -78,7 +81,10 @@ interface DotRowProps {
   dates: string[];
 }
 
-const DotRow = ({ produtoId, logs, dates }: DotRowProps) => (
+const DotRow = ({ produtoId, logs, dates }: DotRowProps) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
+  return (
   <View style={styles.dotRow}>
     {dates.map(date => {
       const done = !!logs[`${produtoId}:${date}`];
@@ -90,11 +96,14 @@ const DotRow = ({ produtoId, logs, dates }: DotRowProps) => (
       );
     })}
   </View>
-);
+  );
+};
 
 // ── screen ────────────────────────────────────────────────────────────────────
 
 export default function CapilarScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [produtos, saveProdutos] = useStorage<any[]>('capilar:produtos', []);
   const [logs, saveLogs]         = useStorage<Record<string, boolean>>('capilar:logs', {});
   const [showModal, setShowModal] = useState(false);
@@ -365,7 +374,7 @@ const ProductRow = ({ produto, done, logs, dates, onToggle, onDelete }: ProductR
 
 // ── styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: {
     flex: 1,
     backgroundColor: colors.bg,

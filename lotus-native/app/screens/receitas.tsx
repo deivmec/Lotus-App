@@ -8,7 +8,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const newId = () => Date.now().toString() + Math.random().toString(36).slice(2, 7);
@@ -115,6 +116,8 @@ const EMPTY_FORM = {
 
 // ─── Main screen ─────────────────────────────────────────────────────────────
 export default function Receitas() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState<'receitas' | 'cardapio' | 'alimentacao'>('receitas');
 
   // ── Receitas state ──────────────────────────────────────────────────────────
@@ -1067,7 +1070,7 @@ export default function Receitas() {
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bg,

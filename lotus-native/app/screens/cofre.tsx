@@ -18,7 +18,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 /* ── Constants ── */
 
@@ -37,7 +38,10 @@ interface PinDotsProps {
   error: boolean;
 }
 
-const PinDots = ({ value, error }: PinDotsProps) => (
+const PinDots = ({ value, error }: PinDotsProps) => {
+  const { colors } = useTheme();
+  const pinStyles = makePinStyles(colors);
+  return (
   <View style={pinStyles.dotsRow}>
     {[0, 1, 2, 3].map(i => (
       <View
@@ -51,7 +55,8 @@ const PinDots = ({ value, error }: PinDotsProps) => (
       />
     ))}
   </View>
-);
+  );
+};
 
 /* ── PinPad ── */
 
@@ -61,6 +66,8 @@ interface PinPadProps {
 }
 
 const PinPad = ({ value, onChange }: PinPadProps) => {
+  const { colors } = useTheme();
+  const pinStyles = makePinStyles(colors);
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
   return (
     <View style={pinStyles.pad}>
@@ -94,6 +101,9 @@ const PinPad = ({ value, onChange }: PinPadProps) => {
 /* ── Main screen ── */
 
 export default function Cofre() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
+  const pinStyles = makePinStyles(colors);
   const insets = useSafeAreaInsets();
   const toast = useToast();
 
@@ -689,7 +699,7 @@ export default function Cofre() {
 
 /* ── PIN styles ── */
 
-const pinStyles = StyleSheet.create({
+const makePinStyles = (colors: any) => StyleSheet.create({
   fullScreen: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -776,7 +786,7 @@ const pinStyles = StyleSheet.create({
 
 /* ── Main styles ── */
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: {
     flex: 1,
     backgroundColor: colors.bg,

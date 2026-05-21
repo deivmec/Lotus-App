@@ -13,7 +13,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -75,6 +76,8 @@ interface Medida { id: string; date: string; peso: string; altura: string; busto
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function SaudeScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const { width } = useWindowDimensions();
   const cellW = Math.floor((width - 2 * spacing.screenPad - 6 * 3) / 7);
 
@@ -1239,7 +1242,7 @@ export default function SaudeScreen() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex:  { flex: 1, backgroundColor: colors.bg },
   flex1: { flex: 1 },
 

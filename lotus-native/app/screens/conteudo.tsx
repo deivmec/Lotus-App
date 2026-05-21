@@ -8,7 +8,8 @@ import Icon from '../../components/Icon';
 import ProgressBar from '../../components/ProgressBar';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString();
 
@@ -28,10 +29,10 @@ const TYPE_ICONS: Record<string, any> = {
 const STATUS_OPTIONS = ['quero ler', 'lendo', 'pausado', 'concluído'] as const;
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
-  'quero ler': { label: 'Quero',    bg: colors.bg2,     color: colors.text3 },
-  'lendo':     { label: 'Em curso', bg: colors.blueBg,  color: colors.blue  },
-  'pausado':   { label: 'Pausado',  bg: colors.bg2,     color: colors.text3 },
-  'concluído': { label: 'Feito',    bg: colors.greenBg, color: colors.green },
+  'quero ler': { label: 'Quero',    bg: lightColors.bg2,     color: lightColors.text3 },
+  'lendo':     { label: 'Em curso', bg: lightColors.blueBg,  color: lightColors.blue  },
+  'pausado':   { label: 'Pausado',  bg: lightColors.bg2,     color: lightColors.text3 },
+  'concluído': { label: 'Feito',    bg: lightColors.greenBg, color: lightColors.green },
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -42,6 +43,8 @@ const TYPE_LABELS: Record<string, string> = {
 const emptyForm = { title: '', author: '', type: 'livro', status: 'quero ler', progress: 0, link: '' };
 
 export default function ConteudoScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [typeFilter, setTypeFilter] = useState('todos');
   const [content, saveContent] = useStorage<any[]>('conteudo:items', []);
   const [showModal, setShowModal] = useState(false);
@@ -222,7 +225,7 @@ export default function ConteudoScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   filterBar: { flexGrow: 0, borderBottomWidth: 1, borderBottomColor: colors.line },
   filterRow: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.screenPad, paddingVertical: 12 },

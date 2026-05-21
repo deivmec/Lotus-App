@@ -15,11 +15,14 @@ import { Redirect } from 'expo-router';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import Icon from '../components/Icon';
-import { colors, fonts, radius, spacing } from '../lib/theme';
+import { fonts, radius, spacing } from '../lib/theme';
+import { useTheme } from '../context/ThemeContext';
 
 type Mode = 'login' | 'signup' | 'forgot';
 
 export default function LoginScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const { authed, loading: authLoading, login, signup } = useAuth();
   const insets = useSafeAreaInsets();
 
@@ -210,7 +213,7 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   container: {
     flexGrow: 1,

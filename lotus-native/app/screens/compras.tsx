@@ -8,7 +8,8 @@ import Icon from '../../components/Icon';
 import Checkbox from '../../components/Checkbox';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString();
 
@@ -45,6 +46,8 @@ const emptyWish = { name: '', price: '', link: '', priority: 'media' };
 const emptyList = { nome: '', emoji: '📋' };
 
 export default function ComprasScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState<typeof TABS[number]>('lista');
 
   const [listas, saveListas]         = useStorage<any[]>('compras:listas', [
@@ -459,7 +462,7 @@ const CurrencyInput = ({ value, currency, onValueChange, onCurrencyChange }: Cur
   </View>
 );
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   tabBar: { flexGrow: 0, borderBottomWidth: 1, borderBottomColor: colors.line },
   tabRow: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.screenPad, paddingVertical: 12 },

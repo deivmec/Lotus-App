@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import Modal from '../../components/Modal';
 import { useStorage } from '../../hooks/useStorage';
-import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
 import { useTheme } from '../../context/ThemeContext';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -1037,6 +1037,7 @@ const AcessoWidget = ({ size }: { size: string }) => {
 
 export default function Home() {
   const { colors } = useTheme();
+  const s = makeHomeStyles(colors);
   const insets = useSafeAreaInsets();
   const now    = new Date();
   const dateStr = `${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
@@ -1338,4 +1339,3 @@ const makeHomeStyles = (colors: C) => StyleSheet.create({
   addLabel:      { fontSize: 12, color: colors.accent, fontFamily: fonts.sansMedium },
 });
 
-const s = makeHomeStyles(lightColors);

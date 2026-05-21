@@ -7,7 +7,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString();
 const TABS = ['calc', 'moeda', 'medidas', 'contagem'] as const;
@@ -74,7 +75,10 @@ interface UnitConverterProps {
   setTo: (v: string) => void;
 }
 
-const UnitConverter = ({ label, units, value, setValue, fromUnit, setFrom, toUnit, setTo }: UnitConverterProps) => (
+const UnitConverter = ({ label, units, value, setValue, fromUnit, setFrom, toUnit, setTo }: UnitConverterProps) => {
+  const { colors } = useTheme();
+  const ucStyles = makeUcStyles(colors);
+  return (
   <View style={ucStyles.card}>
     <Text style={ucStyles.label}>{label.toUpperCase()}</Text>
     <View style={ucStyles.row}>
@@ -126,9 +130,10 @@ const UnitConverter = ({ label, units, value, setValue, fromUnit, setFrom, toUni
       </View>
     </View>
   </View>
-);
+  );
+};
 
-const ucStyles = StyleSheet.create({
+const makeUcStyles = (colors: any) => StyleSheet.create({
   card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, padding: 14, marginBottom: 12 },
   label: { fontFamily: fonts.sans, fontSize: 11, fontWeight: '600', color: colors.text3, letterSpacing: 0.7, marginBottom: 12 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -145,6 +150,8 @@ const ucStyles = StyleSheet.create({
 });
 
 export default function UtilitariosScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState<typeof TABS[number]>('calc');
   const toast = useToast();
 
@@ -441,7 +448,7 @@ export default function UtilitariosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   tabScrollBar: { flexGrow: 0, borderBottomWidth: 1, borderBottomColor: colors.line },
   tabRow: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.screenPad, paddingVertical: 12 },

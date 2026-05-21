@@ -7,18 +7,19 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString() + Math.random().toString(36).slice(2);
 const today = new Date().toISOString().slice(0, 10);
 const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const FUNCAO_CORES: Record<string, { bg: string; color: string }> = {
-  limpeza:      { bg: colors.blueBg,   color: colors.blue },
-  hidratação:   { bg: colors.blueBg,   color: colors.blue },
-  nutrição:     { bg: colors.accentBg, color: colors.accentDk },
-  reconstrução: { bg: colors.redBg,    color: colors.red },
-  finalização:  { bg: colors.greenBg,  color: colors.green },
+  limpeza:      { bg: lightColors.blueBg,   color: lightColors.blue },
+  hidratação:   { bg: lightColors.blueBg,   color: lightColors.blue },
+  nutrição:     { bg: lightColors.accentBg, color: lightColors.accentDk },
+  reconstrução: { bg: lightColors.redBg,    color: lightColors.red },
+  finalização:  { bg: lightColors.greenBg,  color: lightColors.green },
 };
 
 const SK_TIPOS = ['limpeza', 'tônico', 'sérum', 'hidratante', 'protetor solar', 'esfoliante', 'máscara', 'óleo', 'contorno', 'outro'];
@@ -26,13 +27,15 @@ const SK_STEPS = ['manhã', 'noite', 'ambos', 'semanal'] as const;
 const SK_STEP_META: Record<string, { emoji: string; bg: string; color: string }> = {
   manhã:   { emoji: '🌅', bg: '#FFF8EC', color: '#9A6A10' },
   noite:   { emoji: '🌙', bg: '#F0EEF9', color: '#6B5FA5' },
-  ambos:   { emoji: '☀️', bg: colors.accentBg, color: colors.accentDk },
-  semanal: { emoji: '📅', bg: colors.greenBg,  color: colors.green },
+  ambos:   { emoji: '☀️', bg: lightColors.accentBg, color: lightColors.accentDk },
+  semanal: { emoji: '📅', bg: lightColors.greenBg,  color: lightColors.green },
 };
 
 const TABS = ['capilar', 'skincare'] as const;
 
 export default function AutocuidadosScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState<'capilar' | 'skincare'>('capilar');
 
   const [produtos, saveProdutos]   = useStorage<any[]>('capilar:produtos', []);
@@ -372,7 +375,7 @@ export default function AutocuidadosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   tabBar: {
     flexDirection: 'row',

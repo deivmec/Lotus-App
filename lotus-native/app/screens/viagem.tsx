@@ -8,7 +8,8 @@ import Icon from '../../components/Icon';
 import Checkbox from '../../components/Checkbox';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString();
 const TABS = ['bucket', 'docs', 'destinos'] as const;
@@ -18,6 +19,8 @@ const TIPOS = ['cidade', 'praia', 'montanha', 'mochilão', 'aventura', 'cultural
 const TIPO_EMOJI: Record<string, string> = { cidade: '🏙️', praia: '🏖️', montanha: '⛰️', mochilão: '🎒', aventura: '🧭', cultural: '🏛️', outro: '✈️' };
 
 export default function ViagemScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState<typeof TABS[number]>('bucket');
   const [bucket, saveBucket]     = useStorage<any[]>('viagem:bucket', []);
   const [docs, saveDocs]         = useStorage<any[]>('viagem:docs', []);
@@ -385,7 +388,7 @@ export default function ViagemScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   tabBar: { flexGrow: 0, borderBottomWidth: 1, borderBottomColor: colors.line },
   tabRow: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.screenPad, paddingVertical: 12 },

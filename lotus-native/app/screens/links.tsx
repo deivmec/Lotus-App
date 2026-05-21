@@ -8,7 +8,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const newId = () => Date.now().toString();
 
@@ -28,6 +29,8 @@ const ICONS = [
 const emptyForm = { nome: '', url: '', cat: 'trabalho', icon: 'link' };
 
 export default function LinksScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [links, saveLinks] = useStorage<any[]>('links:items', []);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -173,7 +176,7 @@ export default function LinksScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.screenPad, paddingBottom: 40, gap: 24 },
   empty: { alignItems: 'center', paddingVertical: 60 },

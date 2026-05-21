@@ -18,7 +18,8 @@ import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,6 +69,8 @@ interface PaletteCardProps {
 }
 
 const PaletteCard = ({ palette, isDefault, onEdit, onDelete, toast }: PaletteCardProps) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const copyHex = async (hex: string) => {
     try {
       await Share.share({ message: hex });
@@ -115,6 +118,8 @@ const PaletteCard = ({ palette, isDefault, onEdit, onDelete, toast }: PaletteCar
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function InspracaoScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tab, setTab] = useState<Tab>('moodboard');
   const toast = useToast();
 
@@ -606,7 +611,7 @@ export default function InspracaoScreen() {
 const CARD_GAP   = 12;
 const CARD_WIDTH = (SCREEN_WIDTH - spacing.screenPad * 2 - CARD_GAP) / 2;
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: {
     flex: 1,
     backgroundColor: colors.bg,

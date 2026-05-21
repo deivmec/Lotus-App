@@ -3,7 +3,8 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import BackHeader from '../../components/BackHeader';
 import Icon from '../../components/Icon';
 import { useStorage } from '../../hooks/useStorage';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,8 @@ interface UrgencyBadgeProps {
 }
 
 const UrgencyBadge = ({ days }: UrgencyBadgeProps) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   if (days <= 0) {
     return (
       <View style={[styles.badge, { backgroundColor: colors.redBg }]}>
@@ -51,10 +54,14 @@ interface NotifItemProps {
   iconColor?: string;
 }
 
-const NotifItem = ({ icon, title, sub, days, iconColor = colors.text2 }: NotifItemProps) => (
+const NotifItem = ({ icon, title, sub, days, iconColor }: NotifItemProps) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
+  const resolvedIconColor = iconColor ?? colors.text2;
+  return (
   <View style={styles.item}>
     <View style={styles.itemIcon}>
-      <Icon name={icon} size={18} color={iconColor} />
+      <Icon name={icon} size={18} color={resolvedIconColor} />
     </View>
     <View style={styles.itemBody}>
       <Text style={styles.itemTitle} numberOfLines={1}>{title}</Text>
@@ -62,19 +69,24 @@ const NotifItem = ({ icon, title, sub, days, iconColor = colors.text2 }: NotifIt
     </View>
     <UrgencyBadge days={days} />
   </View>
-);
+  );
+};
 
 interface SectionHeaderProps {
   label: string;
 }
 
-const SectionHeader = ({ label }: SectionHeaderProps) => (
-  <Text style={styles.sectionLabel}>{label}</Text>
-);
+const SectionHeader = ({ label }: SectionHeaderProps) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
+  return <Text style={styles.sectionLabel}>{label}</Text>;
+};
 
 // ── screen ────────────────────────────────────────────────────────────────────
 
 export default function NotificacoesScreen() {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [tasks]      = useStorage<any[]>('tasks:items',  []);
   const [events]     = useStorage<any[]>('events:items', []);
   const [travelDocs] = useStorage<any[]>('viagem:docs',  []);
@@ -210,7 +222,7 @@ export default function NotificacoesScreen() {
 
 // ── styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   flex: {
     flex: 1,
     backgroundColor: colors.bg,

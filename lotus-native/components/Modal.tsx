@@ -3,7 +3,6 @@ import {
   Modal as RNModal,
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -11,7 +10,8 @@ import {
   Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing, fonts } from '../lib/theme';
+import { radius, spacing, fonts } from '../lib/theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface ModalProps {
   open: boolean;
@@ -23,6 +23,7 @@ interface ModalProps {
 
 const Modal = ({ open, onClose, title, children, footer }: ModalProps) => {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   return (
     <RNModal
@@ -37,12 +38,11 @@ const Modal = ({ open, onClose, title, children, footer }: ModalProps) => {
       >
         <Pressable style={styles.backdrop} onPress={onClose} />
 
-        <View style={[styles.sheet, { paddingBottom: 0 }]}>
-          {/* drag handle */}
-          <View style={styles.handle} />
+        <View style={[styles.sheet, { backgroundColor: colors.bg }]}>
+          <View style={[styles.handle, { backgroundColor: colors.line }]} />
 
           {title && (
-            <Text style={styles.title}>{title}</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
           )}
 
           <ScrollView
@@ -55,7 +55,7 @@ const Modal = ({ open, onClose, title, children, footer }: ModalProps) => {
           </ScrollView>
 
           {footer && (
-            <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
+            <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: colors.bg, borderTopColor: colors.line }]}>
               {footer}
             </View>
           )}
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   sheet: {
-    backgroundColor: colors.bg,
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
     maxHeight: '92%',
@@ -84,7 +83,6 @@ const styles = StyleSheet.create({
   handle: {
     width: 36,
     height: 4,
-    backgroundColor: colors.line,
     borderRadius: 99,
     alignSelf: 'center',
     marginTop: 14,
@@ -93,14 +91,11 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.serif,
     fontSize: 20,
-    color: colors.text,
     paddingHorizontal: spacing.xl,
     paddingTop: 14,
     flexShrink: 0,
   },
-  body: {
-    flexShrink: 1,
-  },
+  body: { flexShrink: 1 },
   bodyContent: {
     padding: spacing.xl,
     gap: 12,
@@ -108,9 +103,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: spacing.xl,
     paddingTop: 12,
-    backgroundColor: colors.bg,
     borderTopWidth: 1,
-    borderTopColor: colors.line,
     flexShrink: 0,
   },
 });
