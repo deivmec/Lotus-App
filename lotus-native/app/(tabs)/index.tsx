@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,
 } from 'react-native';
@@ -7,7 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import Modal from '../../components/Modal';
 import { useStorage } from '../../hooks/useStorage';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { colors as lightColors, fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -111,27 +112,33 @@ const getNoteBg = (colorVal?: string) => {
 
 const Widget = ({ emoji, title, linkLabel, onLink, children }: {
   emoji: string; title: string; linkLabel?: string; onLink?: () => void; children: any;
-}) => (
-  <View style={s.widgetWrap}>
-    <View style={s.widgetHeader}>
-      <Text style={s.sectionLabel}>{emoji} {title}</Text>
-      {onLink && (
-        <TouchableOpacity onPress={onLink} activeOpacity={0.7}>
-          <Text style={s.linkBtn}>{linkLabel || 'Ver tudo'}</Text>
-        </TouchableOpacity>
-      )}
+}) => {
+  const { colors } = useTheme();
+  return (
+    <View style={s.widgetWrap}>
+      <View style={s.widgetHeader}>
+        <Text style={[s.sectionLabel, { color: colors.text2 }]}>{emoji} {title}</Text>
+        {onLink && (
+          <TouchableOpacity onPress={onLink} activeOpacity={0.7}>
+            <Text style={[s.linkBtn, { color: colors.accent }]}>{linkLabel || 'Ver tudo'}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      {children}
     </View>
-    {children}
-  </View>
-);
+  );
+};
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
-const ProgressBar = ({ pct, color }: { pct: number; color: string }) => (
-  <View style={s.progressTrack}>
-    <View style={[s.progressFill, { width: `${Math.min(pct * 100, 100)}%` as any, backgroundColor: color }]} />
-  </View>
-);
+const ProgressBar = ({ pct, color }: { pct: number; color: string }) => {
+  const { colors } = useTheme();
+  return (
+    <View style={[s.progressTrack, { backgroundColor: colors.bg3 }]}>
+      <View style={[s.progressFill, { width: `${Math.min(pct * 100, 100)}%` as any, backgroundColor: color }]} />
+    </View>
+  );
+};
 
 // ─── Countdown hook ───────────────────────────────────────────────────────────
 
@@ -155,6 +162,7 @@ const useCountdown = (deadline: string) => {
 };
 
 const CountdownItem = ({ task }: { task: any }) => {
+  const { colors } = useTheme();
   const t = useCountdown(task.deadline);
   const isUrgent = !t.expired && t.h < 3;
   const fmt2 = (n: number) => String(n).padStart(2, '0');
@@ -167,7 +175,7 @@ const CountdownItem = ({ task }: { task: any }) => {
     <View style={[s.countdownRow, { backgroundColor: isUrgent && !t.expired ? colors.redBg : colors.surface }]}>
       <Text style={[s.countdownText, { textDecorationLine: t.expired ? 'line-through' : 'none', color: t.expired ? colors.text3 : colors.text }]} numberOfLines={1}>{task.text}</Text>
       <View style={s.countdownTime}>
-        {isUrgent && !t.expired && <View style={s.urgentDot} />}
+        {isUrgent && !t.expired && <View style={[s.urgentDot, { backgroundColor: colors.red }]} />}
         <Text style={[s.countdownLabel, { color: t.expired ? colors.text3 : isUrgent ? colors.red : colors.text2 }]}>{label}</Text>
       </View>
     </View>
@@ -180,6 +188,7 @@ const CountdownItem = ({ task }: { task: any }) => {
 
 // ── Humor ──
 const MoodWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [moods, saveMoods] = useStorage<any[]>('saude:moods', []);
   const todayMood = moods.find(m => m.date === TODAY);
   const setMood = (level: number) => saveMoods(ms => [...ms.filter(m => m.date !== TODAY), { date: TODAY, level }]);
@@ -188,7 +197,7 @@ const MoodWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="😊" title="Humor">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={s.bigEmoji}>{m?.emoji || '—'}</Text>
           <View>
             <Text style={s.cardTitle}>{m?.label || 'Não registrado'}</Text>
@@ -215,11 +224,11 @@ const MoodWidget = ({ size }: { size: string }) => {
             <TouchableOpacity
               key={mood.level}
               onPress={() => setMood(mood.level)}
-              style={[s.moodBtn, sel && s.moodBtnSel]}
+              style={[s.moodBtn, { backgroundColor: colors.surface, borderColor: colors.line }, sel && { borderColor: colors.accent, backgroundColor: colors.accentBg }]}
               activeOpacity={0.7}
             >
               <Text style={s.moodEmoji}>{mood.emoji}</Text>
-              <Text style={[s.moodLabel, sel && { color: colors.accentDk }]}>{mood.label}</Text>
+              <Text style={[s.moodLabel, { color: colors.text3 }, sel && { color: colors.accentDk }]}>{mood.label}</Text>
             </TouchableOpacity>
           );
         })}
@@ -240,6 +249,7 @@ const MoodWidget = ({ size }: { size: string }) => {
 
 // ── Nota rápida ──
 const QuickNoteWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [nota, setNota] = useState('');
   const [quickNotes, saveQuickNotes] = useStorage<any[]>('home:quicknotes', []);
   const salvar = () => {
@@ -253,7 +263,7 @@ const QuickNoteWidget = ({ size }: { size: string }) => {
 
   return (
     <Widget emoji="📝" title="Nota rápida">
-      <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+      <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
         <View style={[s.quickNoteInput, quickNotes.length > 0 && s.quickNoteInputBorder]}>
           <TextInput
             value={nota}
@@ -288,6 +298,7 @@ const QuickNoteWidget = ({ size }: { size: string }) => {
 
 // ── Resumo do dia ──
 const StatsWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [tasks]     = useStorage<any[]>('tasks:items', []);
   const [habits]    = useStorage<any[]>('habits:items', []);
   const [events]    = useStorage<any[]>('events:items', []);
@@ -308,7 +319,7 @@ const StatsWidget = ({ size }: { size: string }) => {
     <Widget emoji="📊" title="Resumo do dia">
       <View style={s.statsRow}>
         {stats.map((c, i) => (
-          <View key={i} style={[s.statCard, { padding: pad }]}>
+          <View key={i} style={[s.statCard, { padding: pad, backgroundColor: colors.surface, borderColor: colors.line }]}>
             <Text style={s.statValue}>{c.value}</Text>
             <Text style={s.statLabel}>{c.label}</Text>
             {size === 'large' && c.pct !== null && <ProgressBar pct={c.pct} color={c.color} />}
@@ -321,6 +332,7 @@ const StatsWidget = ({ size }: { size: string }) => {
 
 // ── Tarefas do dia ──
 const TarefasWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [tasks, saveTasks] = useStorage<any[]>('tasks:items', []);
   const toggle = (id: string) => saveTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
   const maxItems = size === 'large' ? 8 : 4;
@@ -329,7 +341,7 @@ const TarefasWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="✅" title="Tarefas" onLink={() => navTo('tasks')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={[s.bigNumber, { color: pending.length === 0 ? colors.green : colors.text }]}>{pending.length}</Text>
           <View>
             <Text style={s.cardSub}>{pending.length === 0 ? 'Tudo em dia!' : `pendente${pending.length !== 1 ? 's' : ''}`}</Text>
@@ -343,9 +355,9 @@ const TarefasWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="✅" title="Tarefas do dia" onLink={() => navTo('tasks')} linkLabel="Ver todas">
       {pending.length === 0 ? (
-        <View style={s.emptyCard}><Text style={s.emptyCardText}>✓ Tudo em dia!</Text></View>
+        <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={s.emptyCardText}>✓ Tudo em dia!</Text></View>
       ) : (
-        <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+        <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
           {pending.slice(0, maxItems).map((t, i) => {
             const dotColor = t.priority === 'alta' ? colors.red : t.priority === 'baixa' ? colors.text3 : colors.accent;
             return (
@@ -367,6 +379,7 @@ const TarefasWidget = ({ size }: { size: string }) => {
 
 // ── Hábitos ──
 const HabitosWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [habits] = useStorage<any[]>('habits:items', []);
   const [habitLogs, saveHabitLogs] = useStorage<Record<string, boolean>>('habits:logs', {});
   const doneCount = habits.filter(h => habitLogs[`${h.id}:${TODAY}`]).length;
@@ -382,7 +395,7 @@ const HabitosWidget = ({ size }: { size: string }) => {
     const pct = habits.length ? doneCount / habits.length : 0;
     return (
       <Widget emoji="🏃" title="Hábitos" onLink={() => navTo('tasks')} linkLabel="Ver">
-        <View style={s.card}>
+        <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <View style={[s.cardRow, { marginBottom: 8 }]}>
             <Text style={s.bigNumber}>{doneCount}/{habits.length}</Text>
             <Text style={s.cardSub}>hábitos feitos</Text>
@@ -396,9 +409,9 @@ const HabitosWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="🏃" title="Hábitos" onLink={() => navTo('tasks')} linkLabel="Ver todos">
       {habits.length === 0 ? (
-        <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhum hábito criado</Text></View>
+        <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhum hábito criado</Text></View>
       ) : (
-        <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+        <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
           {habits.slice(0, maxItems).map((habit, i) => {
             const done = !!habitLogs[`${habit.id}:${TODAY}`];
             return (
@@ -425,6 +438,7 @@ const HabitosWidget = ({ size }: { size: string }) => {
 
 // ── Cardápio de hoje ──
 const CardapioWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [plano] = useStorage<Record<string, any>>('cronograma:refeicoes', {});
   const hoje   = plano[TODAY_DAY_ID] || {};
   const filled = REFEICOES_MAP.filter(r => hoje[r.id]);
@@ -433,7 +447,7 @@ const CardapioWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="🍽️" title="Cardápio" onLink={() => navTo('receitas')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={s.bigNumber}>{filled.length}/4</Text>
           <Text style={s.cardSub}>refeições planejadas</Text>
         </View>
@@ -444,9 +458,9 @@ const CardapioWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="🍽️" title="Cardápio de hoje" onLink={() => navTo('receitas')} linkLabel="Ver cardápio">
       {items.length === 0 ? (
-        <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma refeição planejada</Text></View>
+        <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma refeição planejada</Text></View>
       ) : (
-        <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+        <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
           {items.map((r, i) => (
             <View key={r.id} style={[s.listRow, i < items.length - 1 && s.itemBorder, { opacity: !hoje[r.id] && size === 'large' ? 0.4 : 1 }]}>
               <Text style={{ fontSize: 15, flexShrink: 0 }}>{r.emoji}</Text>
@@ -464,6 +478,7 @@ const CardapioWidget = ({ size }: { size: string }) => {
 
 // ── Contagem regressiva ──
 const ContagemWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [countdowns] = useStorage<any[]>('utilitarios:countdowns', []);
   const base = new Date(); base.setHours(0, 0, 0, 0);
   const upcoming = countdowns
@@ -475,7 +490,7 @@ const ContagemWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="⏳" title="Contagem" onLink={() => navTo('utilitarios')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           {!next
             ? <Text style={s.cardSub}>Nenhuma contagem</Text>
             : <>
@@ -495,9 +510,9 @@ const ContagemWidget = ({ size }: { size: string }) => {
     return (
       <Widget emoji="⏳" title="Contagem regressiva" onLink={() => navTo('utilitarios')} linkLabel="Gerenciar">
         {upcoming.length === 0
-          ? <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma contagem</Text></View>
+          ? <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma contagem</Text></View>
           : (
-            <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+            <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
               {upcoming.slice(0, 3).map((c, i) => (
                 <View key={c.id} style={[s.listRow, i < Math.min(upcoming.length, 3) - 1 && s.itemBorder]}>
                   <Text style={[s.bigNumber, { width: 44, textAlign: 'center', color: c.days === 0 ? colors.green : colors.text }]}>
@@ -519,9 +534,9 @@ const ContagemWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="⏳" title="Contagem regressiva" onLink={() => navTo('utilitarios')} linkLabel="Gerenciar">
       {!next
-        ? <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma contagem</Text></View>
+        ? <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma contagem</Text></View>
         : (
-          <View style={[s.card, { alignItems: 'center', paddingVertical: 20 }]}>
+          <View style={[s.card, { alignItems: 'center', paddingVertical: 20, backgroundColor: colors.surface, borderColor: colors.line }]}>
             <Text style={[s.countdown, { color: next.days === 0 ? colors.green : colors.text }]}>
               {next.days === 0 ? '🎉' : next.days}
             </Text>
@@ -537,6 +552,7 @@ const ContagemWidget = ({ size }: { size: string }) => {
 
 // ── Prazos urgentes ──
 const UrgentesWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [tasks] = useStorage<any[]>('tasks:items', []);
   const now = new Date();
   const maxItems = size === 'large' ? 5 : 3;
@@ -554,7 +570,7 @@ const UrgentesWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="⚡" title="Urgentes" onLink={() => navTo('tasks')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={[s.bigNumber, { color: colors.red }]}>{urgent.length}</Text>
           <Text style={s.cardSub}>tarefa{urgent.length !== 1 ? 's' : ''} urgente{urgent.length !== 1 ? 's' : ''}</Text>
         </View>
@@ -564,7 +580,7 @@ const UrgentesWidget = ({ size }: { size: string }) => {
 
   return (
     <Widget emoji="⚡" title="Prazos urgentes" onLink={() => navTo('tasks')} linkLabel="Ver tarefas">
-      <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+      <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
         {urgent.map((task, i) => (
           <View key={task.id} style={i < urgent.length - 1 ? s.itemBorder : undefined}>
             <CountdownItem task={task} />
@@ -577,6 +593,7 @@ const UrgentesWidget = ({ size }: { size: string }) => {
 
 // ── Agenda ──
 const AgendaWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [events] = useStorage<any[]>('events:items', []);
   const maxItems = size === 'large' ? 6 : 3;
   const todayEvents = events.filter(e => e.date === TODAY).sort((a, b) => a.time > b.time ? 1 : -1);
@@ -584,7 +601,7 @@ const AgendaWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="📅" title="Agenda" onLink={() => navTo('calendario')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={s.bigNumber}>{todayEvents.length}</Text>
           <Text style={s.cardSub}>evento{todayEvents.length !== 1 ? 's' : ''} hoje</Text>
         </View>
@@ -595,11 +612,11 @@ const AgendaWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="📅" title="Hoje na agenda" onLink={() => navTo('calendario')}>
       {todayEvents.length === 0
-        ? <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhum evento hoje</Text></View>
+        ? <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhum evento hoje</Text></View>
         : (
           <View style={{ gap: 6 }}>
             {todayEvents.slice(0, maxItems).map(ev => (
-              <View key={ev.id} style={s.eventRow}>
+              <View key={ev.id} style={[s.eventRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
                 <Text style={s.eventTime}>{ev.time}</Text>
                 <Text style={[s.itemText, { flex: 1 }]}>{ev.title}</Text>
                 <View style={[s.eventDot, { backgroundColor: ev.color || colors.accent }]} />
@@ -614,6 +631,7 @@ const AgendaWidget = ({ size }: { size: string }) => {
 
 // ── Finanças ──
 const FinancasWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [transactions] = useStorage<any[]>('financas:transacoes', []);
   const [cats]         = useStorage<any[]>('financas:categorias', []);
   const monthTx        = transactions.filter(t => t.date?.startsWith(THIS_MONTH));
@@ -622,7 +640,7 @@ const FinancasWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="💸" title="Finanças" onLink={() => navTo('financas')} linkLabel="Ver">
-        <View style={s.card}>
+        <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={s.cardSub}>gasto este mês</Text>
           <Text style={s.bigNumber}>R$ {totalExpense.toFixed(2)}</Text>
         </View>
@@ -639,7 +657,7 @@ const FinancasWidget = ({ size }: { size: string }) => {
 
   return (
     <Widget emoji="💸" title="Finanças" onLink={() => navTo('financas')} linkLabel="Ver tudo">
-      <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+      <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
         <View style={[s.listRow, catsWithSpend.length > 0 && s.itemBorder, { flexDirection: 'column', alignItems: 'flex-start', padding: 14 }]}>
           <Text style={s.cardSub}>total gasto este mês</Text>
           <Text style={[s.bigNumber, { marginTop: 2 }]}>R$ {totalExpense.toFixed(2)}</Text>
@@ -660,6 +678,7 @@ const FinancasWidget = ({ size }: { size: string }) => {
 
 // ── Compras ──
 const ComprasWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [listas]  = useStorage<any[]>('compras:listas', []);
   const curList   = listas[0];
   const pending   = curList?.itens?.filter((i: any) => !i.done) || [];
@@ -668,7 +687,7 @@ const ComprasWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="🛒" title="Compras" onLink={() => navTo('compras')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={s.bigNumber}>{pending.length}</Text>
           <View>
             <Text style={s.cardSub}>ite{pending.length !== 1 ? 'ns' : 'm'} na lista</Text>
@@ -682,9 +701,9 @@ const ComprasWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="🛒" title={curList ? `${curList.emoji} ${curList.nome}` : 'Compras'} onLink={() => navTo('compras')} linkLabel="Ver lista">
       {pending.length === 0
-        ? <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.green }]}>✓ Lista vazia</Text></View>
+        ? <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.green }]}>✓ Lista vazia</Text></View>
         : (
-          <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+          <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
             {pending.slice(0, maxItems).map((item: any, i: number) => (
               <View key={item.id} style={[s.listRow, i < Math.min(pending.length, maxItems) - 1 && s.itemBorder]}>
                 <View style={s.comprasDot} />
@@ -704,6 +723,7 @@ const ComprasWidget = ({ size }: { size: string }) => {
 
 // ── Conteúdo ──
 const ConteudoWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [content] = useStorage<any[]>('conteudo:items', []);
   const inProgress = content.filter(c => c.status === 'consumindo');
   const maxItems = size === 'large' ? 6 : 3;
@@ -711,7 +731,7 @@ const ConteudoWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="📚" title="Conteúdo" onLink={() => navTo('conteudo')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={s.bigNumber}>{inProgress.length}</Text>
           <Text style={s.cardSub}>em andamento</Text>
         </View>
@@ -722,9 +742,9 @@ const ConteudoWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="📚" title="Conteúdo" onLink={() => navTo('conteudo')} linkLabel="Ver tudo">
       {inProgress.length === 0
-        ? <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nada em andamento</Text></View>
+        ? <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nada em andamento</Text></View>
         : (
-          <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+          <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
             {inProgress.slice(0, maxItems).map((item, i) => (
               <View key={item.id} style={[s.listRow, i < Math.min(inProgress.length, maxItems) - 1 && s.itemBorder]}>
                 <Text style={{ fontSize: 16, flexShrink: 0 }}>{CONTENT_TYPES[item.type] || '📄'}</Text>
@@ -743,6 +763,7 @@ const ConteudoWidget = ({ size }: { size: string }) => {
 
 // ── Notas recentes ──
 const NotasWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [notes] = useStorage<any[]>('notes:items', []);
   const maxItems = size === 'small' ? 1 : size === 'large' ? 4 : 2;
 
@@ -750,7 +771,7 @@ const NotasWidget = ({ size }: { size: string }) => {
     const last = notes[0];
     return (
       <Widget emoji="📓" title="Notas" onLink={() => navTo('pessoal')} linkLabel="Ver">
-        <View style={s.card}>
+        <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           {last
             ? <>
                 <Text style={s.cardTitle} numberOfLines={1}>{last.title}</Text>
@@ -766,7 +787,7 @@ const NotasWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="📓" title="Notas recentes" onLink={() => navTo('pessoal')} linkLabel="Ver todas">
       {notes.length === 0
-        ? <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma nota</Text></View>
+        ? <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma nota</Text></View>
         : (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {notes.slice(0, maxItems).map(note => (
@@ -785,6 +806,7 @@ const NotasWidget = ({ size }: { size: string }) => {
 
 // ── Diário ──
 const DiarioWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [journal] = useStorage<any[]>('journal:items', []);
   const todayEntry = journal.find(j => j.date === TODAY);
   const maxChars = size === 'large' ? 400 : 140;
@@ -792,7 +814,7 @@ const DiarioWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="✍️" title="Diário" onLink={() => navTo('pessoal')} linkLabel="Escrever">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={{ fontSize: 22 }}>{todayEntry ? '✓' : '📖'}</Text>
           <Text style={[s.cardSub, { color: todayEntry ? colors.green : colors.text2 }]}>
             {todayEntry ? 'Entrada escrita hoje' : 'Escreva no diário'}
@@ -804,7 +826,7 @@ const DiarioWidget = ({ size }: { size: string }) => {
 
   return (
     <Widget emoji="✍️" title="Diário" onLink={() => navTo('pessoal')} linkLabel="Abrir">
-      <View style={s.card}>
+      <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
         {todayEntry
           ? <>
               <Text style={[s.cardSub, { marginBottom: 8 }]}>Hoje — {TODAY}</Text>
@@ -823,6 +845,7 @@ const DiarioWidget = ({ size }: { size: string }) => {
 
 // ── Saúde ──
 const SaudeWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [meds]    = useStorage<any[]>('saude:meds', []);
   const [medLogs] = useStorage<Record<string, boolean>>('saude:medlogs', {});
   const [treinos] = useStorage<any[]>('saude:treinos', []);
@@ -833,7 +856,7 @@ const SaudeWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="💊" title="Saúde" onLink={() => navTo('saude')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={s.bigNumber}>{takenCount}/{meds.length}</Text>
           <Text style={s.cardSub}>remédios tomados</Text>
         </View>
@@ -846,7 +869,7 @@ const SaudeWidget = ({ size }: { size: string }) => {
       <View style={{ gap: 8 }}>
         {meds.length > 0
           ? (
-            <View style={[s.card, { padding: 0, overflow: 'hidden' }]}>
+            <View style={[s.card, { padding: 0, overflow: 'hidden', backgroundColor: colors.surface, borderColor: colors.line }]}>
               <View style={[s.medHeader, s.itemBorder]}>
                 <Text style={s.refLabel}>REMÉDIOS</Text>
               </View>
@@ -862,10 +885,10 @@ const SaudeWidget = ({ size }: { size: string }) => {
               })}
             </View>
           )
-          : <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhum remédio cadastrado</Text></View>
+          : <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhum remédio cadastrado</Text></View>
         }
         {size === 'large' && todayWorkout && (
-          <View style={[s.card, s.cardRow]}>
+          <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
             <Text style={{ fontSize: 18 }}>🏋️</Text>
             <View>
               <Text style={s.cardTitle}>{todayWorkout.type || todayWorkout.category}</Text>
@@ -880,6 +903,7 @@ const SaudeWidget = ({ size }: { size: string }) => {
 
 // ── Viagem ──
 const ViagemWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [destinos] = useStorage<any[]>('viagem:destinos', []);
   const base = new Date(); base.setHours(0, 0, 0, 0);
   const upcoming = destinos
@@ -892,7 +916,7 @@ const ViagemWidget = ({ size }: { size: string }) => {
   if (size === 'small') {
     return (
       <Widget emoji="✈️" title="Viagem" onLink={() => navTo('viagem')} linkLabel="Ver">
-        <View style={[s.card, s.cardRow]}>
+        <View style={[s.card, s.cardRow, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           {!next
             ? <Text style={s.cardSub}>Nenhuma viagem</Text>
             : <>
@@ -911,9 +935,9 @@ const ViagemWidget = ({ size }: { size: string }) => {
   return (
     <Widget emoji="✈️" title="Próxima viagem" onLink={() => navTo('viagem')} linkLabel="Ver viagens">
       {!next
-        ? <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma viagem planejada</Text></View>
+        ? <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma viagem planejada</Text></View>
         : (
-          <View style={s.card}>
+          <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
             <View style={s.viagemRow}>
               <Text style={{ fontSize: 28 }}>{next.emoji}</Text>
               <View style={{ flex: 1 }}>
@@ -937,13 +961,14 @@ const ViagemWidget = ({ size }: { size: string }) => {
 
 // ── Inspiração ──
 const InspiracaoWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const [paletas] = useStorage<any[]>('inspiracao:paletas', []);
   const normColor = (c: any) => typeof c === 'string' ? { hex: c, name: '' } : c;
 
   if (paletas.length === 0) {
     return (
       <Widget emoji="🎨" title="Inspiração">
-        <View style={s.emptyCard}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma paleta salva</Text></View>
+        <View style={[s.emptyCard, { backgroundColor: colors.surface, borderColor: colors.line }]}><Text style={[s.emptyCardText, { color: colors.text3 }]}>Nenhuma paleta salva</Text></View>
       </Widget>
     );
   }
@@ -954,7 +979,7 @@ const InspiracaoWidget = ({ size }: { size: string }) => {
     const cols = (paletas[0].colors || []).map(normColor);
     return (
       <Widget emoji="🎨" title="Inspiração">
-        <View style={s.card}>
+        <View style={[s.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <Text style={[s.cardSub, { marginBottom: 8 }]}>{paletas[0].name}</Text>
           <View style={s.swatchRow}>
             {cols.slice(0, 5).map((c: any, i: number) => (
@@ -972,7 +997,7 @@ const InspiracaoWidget = ({ size }: { size: string }) => {
         {showPalettes.map((p: any) => {
           const pColors = (p.colors || []).map(normColor);
           return (
-            <View key={p.id} style={s.card}>
+            <View key={p.id} style={[s.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
               <Text style={[s.cardTitle, { marginBottom: 8 }]}>{p.name}</Text>
               <View style={s.swatchRow}>
                 {pColors.slice(0, 5).map((c: any, i: number) => (
@@ -989,12 +1014,13 @@ const InspiracaoWidget = ({ size }: { size: string }) => {
 
 // ── Acesso rápido ──
 const AcessoWidget = ({ size }: { size: string }) => {
+  const { colors } = useTheme();
   const items = size === 'small' ? QUICK_ACCESS.slice(0, 4) : QUICK_ACCESS;
   return (
     <Widget emoji="🔗" title="Acesso rápido">
       <View style={s.accessGrid}>
         {items.map((item, i) => (
-          <TouchableOpacity key={i} onPress={() => navTo(item.screen)} style={s.accessBtn} activeOpacity={0.7}>
+          <TouchableOpacity key={i} onPress={() => navTo(item.screen)} style={[s.accessBtn, { backgroundColor: colors.surface, borderColor: colors.line }]} activeOpacity={0.7}>
             <Icon name={item.icon as any} size={size === 'small' ? 16 : 18} color={colors.text2} />
             <Text style={s.accessLabel}>{item.label}</Text>
           </TouchableOpacity>
@@ -1009,6 +1035,7 @@ const AcessoWidget = ({ size }: { size: string }) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function Home() {
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const now    = new Date();
   const dateStr = `${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
@@ -1069,7 +1096,7 @@ export default function Home() {
   };
 
   return (
-    <View style={s.screen}>
+    <View style={[s.screen, { backgroundColor: colors.bg }]}>
       <ScrollView
         contentContainerStyle={[s.scroll, { paddingTop: insets.top + 16 }]}
         showsVerticalScrollIndicator={false}
@@ -1077,8 +1104,8 @@ export default function Home() {
         {/* Header */}
         <View style={s.header}>
           <View>
-            <Text style={s.dateText}>{dateStr}</Text>
-            <Text style={s.greetText}>
+            <Text style={[s.dateText, { color: colors.text3 }]}>{dateStr}</Text>
+            <Text style={[s.greetText, { color: colors.text }]}>
               {greet},{' '}
               <Text style={s.greetName}>{firstName}.</Text>
             </Text>
@@ -1086,18 +1113,18 @@ export default function Home() {
           <View style={s.headerActions}>
             <TouchableOpacity
               onPress={() => router.push('/screens/busca' as any)}
-              style={s.searchBtn}
+              style={[s.searchBtn, { backgroundColor: colors.bg2 }]}
               activeOpacity={0.7}
             >
               <Icon name="search" size={17} color={colors.text2} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowPersonalize(true)}
-              style={s.widgetsBtn}
+              style={[s.widgetsBtn, { backgroundColor: colors.bg2 }]}
               activeOpacity={0.7}
             >
               <Icon name="edit" size={14} color={colors.text2} />
-              <Text style={s.widgetsBtnText}>Widgets</Text>
+              <Text style={[s.widgetsBtnText, { color: colors.text2 }]}>Widgets</Text>
             </TouchableOpacity>
             <Text style={s.logo}>🪷</Text>
           </View>
@@ -1112,12 +1139,12 @@ export default function Home() {
         {config.length > 0 && (
           <View style={{ marginBottom: 24 }}>
             <Text style={s.sectionLabel}>Ativos</Text>
-            <View style={s.personList}>
+            <View style={[s.personList, { borderColor: colors.line }]}>
               {config.map((w: any, i: number) => {
                 const def = WIDGET_DEFS.find(d => d.id === w.id);
                 if (!def) return null;
                 return (
-                  <View key={w.id} style={[s.personRow, i < config.length - 1 && s.itemBorder]}>
+                  <View key={w.id} style={[s.personRow, { backgroundColor: colors.surface }, i < config.length - 1 && s.itemBorder]}>
                     <Text style={s.personEmoji}>{def.emoji}</Text>
                     <Text style={[s.cardTitle, { flex: 1 }]} numberOfLines={1}>{def.label}</Text>
                     <TouchableOpacity onPress={() => moveWidget(i, -1)} style={s.arrowBtn} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
@@ -1130,9 +1157,9 @@ export default function Home() {
                       <TouchableOpacity
                         key={sz}
                         onPress={() => setWidgetSize(w.id, sz)}
-                        style={[s.sizePill, w.size === sz && s.sizePillActive]}
+                        style={[s.sizePill, { backgroundColor: colors.bg2 }, w.size === sz && { backgroundColor: colors.text }]}
                       >
-                        <Text style={[s.sizePillText, w.size === sz && s.sizePillTextActive]}>{SIZE_LABELS[sz]}</Text>
+                        <Text style={[s.sizePillText, { color: colors.text3 }, w.size === sz && { color: colors.bg }]}>{SIZE_LABELS[sz]}</Text>
                       </TouchableOpacity>
                     ))}
                     <TouchableOpacity onPress={() => removeWidget(w.id)} style={{ padding: 4 }} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
@@ -1153,7 +1180,7 @@ export default function Home() {
                 <TouchableOpacity
                   key={def.id}
                   onPress={() => addWidget(def.id)}
-                  style={s.availableBtn}
+                  style={[s.availableBtn, { backgroundColor: colors.bg2, borderColor: colors.line }]}
                   activeOpacity={0.7}
                 >
                   <Text style={{ fontSize: 20, marginBottom: 4 }}>{def.emoji}</Text>
@@ -1176,7 +1203,8 @@ export default function Home() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const s = StyleSheet.create({
+type C = { bg: string; bg2: string; bg3: string; line: string; surface: string; text: string; text2: string; text3: string; accent: string; accentBg: string; accentDk: string; green: string; greenBg: string; blue: string; blueBg: string; red: string; redBg: string; };
+const makeHomeStyles = (colors: C) => StyleSheet.create({
   screen:  { flex: 1, backgroundColor: colors.bg },
   scroll:  { paddingHorizontal: spacing.screenPad, paddingBottom: 60 },
 
@@ -1308,3 +1336,5 @@ const s = StyleSheet.create({
   availableBtn:  { width: '47%', backgroundColor: colors.bg2, borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, padding: 12 },
   addLabel:      { fontSize: 12, color: colors.accent, fontFamily: fonts.sansMedium },
 });
+
+const s = makeHomeStyles(lightColors);

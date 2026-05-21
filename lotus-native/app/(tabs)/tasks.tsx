@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet,
 } from 'react-native';
@@ -10,7 +10,8 @@ import ProgressBar from '../../components/ProgressBar';
 import { PriorityTag } from '../../components/Tag';
 import { useStorage } from '../../hooks/useStorage';
 import { useToast } from '../../components/Toast';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const today = new Date().toISOString().slice(0, 10);
@@ -36,8 +37,90 @@ const getWeekDays = () => {
   return days;
 };
 
+type C = { bg: string; bg2: string; bg3: string; line: string; surface: string; text: string; text2: string; text3: string; accent: string; accentBg: string; accentDk: string; green: string; greenBg: string; blue: string; blueBg: string; red: string; redBg: string; };
+const makeStyles = (c: C) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: c.bg },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.screenPad,
+    paddingTop: 24,
+    paddingBottom: 16,
+  },
+  heading: { fontFamily: fonts.serif, fontSize: 28, color: c.text, lineHeight: 34 },
+  sub: { fontFamily: fonts.sans, fontSize: 13, color: c.text2, marginTop: 4 },
+  addBtn: { marginTop: 4 },
+  tabBar: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.screenPad,
+    paddingBottom: 16,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: c.line,
+  },
+  tabBtn: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: radius.sm, backgroundColor: c.bg2 },
+  tabBtnActive: { backgroundColor: c.text },
+  tabText: { fontFamily: fonts.sans, fontSize: 14, fontWeight: '500', color: c.text2 },
+  tabTextActive: { color: c.bg },
+  content: { padding: spacing.screenPad, paddingBottom: 40 },
+  gap16: { gap: 16 },
+  progressWrap: { gap: 6 },
+  progressRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  progressText: { fontFamily: fonts.sans, fontSize: 11, color: c.text3 },
+  sectionLabel: { fontFamily: fonts.sans, fontSize: 11, fontWeight: '600', color: c.text3, letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 },
+  card: { backgroundColor: c.surface, borderWidth: 1, borderColor: c.line, borderRadius: radius.md, overflow: 'hidden' },
+  divider: { height: 1, backgroundColor: c.line, marginHorizontal: 16 },
+  taskRow: { flexDirection: 'row', alignItems: 'flex-start', padding: 14, gap: 8 },
+  taskBody: { flex: 1 },
+  taskMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, marginLeft: 32 },
+  taskDate: { fontFamily: fonts.sans, fontSize: 11, color: c.text3, marginTop: 1 },
+  catTag: { backgroundColor: c.bg2, borderRadius: 99, paddingHorizontal: 8, paddingVertical: 2 },
+  catTagText: { fontFamily: fonts.sans, fontSize: 11, color: c.text3 },
+  iconBtn: { padding: 4 },
+  weekHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  weekDayLabels: { flex: 1, flexDirection: 'row', justifyContent: 'space-between' },
+  weekDayLabel: { fontFamily: fonts.sans, fontSize: 10, color: c.text3, textAlign: 'center', flex: 1 },
+  weekDayLabelToday: { color: c.accent, fontWeight: '600' },
+  habitRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
+  habitEmoji: { fontSize: 18, flexShrink: 0 },
+  habitBody: { flex: 1, minWidth: 0 },
+  habitName: { fontFamily: fonts.sans, fontSize: 14, color: c.text, marginBottom: 8 },
+  habitDots: { flexDirection: 'row', justifyContent: 'space-between' },
+  habitDot: {
+    width: 24, height: 24, borderRadius: 12,
+    borderWidth: 1.5, borderColor: c.line,
+    backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+  },
+  habitDotDone: { backgroundColor: c.accent, borderColor: c.accent },
+  habitDotToday: { borderColor: c.accent, borderStyle: 'dashed' },
+  empty: { alignItems: 'center', paddingVertical: 40 },
+  emptyEmoji: { fontSize: 32, marginBottom: 12 },
+  emptyText: { fontFamily: fonts.sans, fontSize: 14, color: c.text3 },
+  btnAdd: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    padding: 12, borderWidth: 1.5, borderColor: c.line, borderRadius: radius.md, borderStyle: 'dashed',
+  },
+  btnAddText: { fontFamily: fonts.sans, fontSize: 14, color: c.text2 },
+  input: {
+    backgroundColor: c.bg2, borderWidth: 1, borderColor: c.line, borderRadius: radius.sm,
+    paddingHorizontal: 16, paddingVertical: 13, fontFamily: fonts.sans, fontSize: 15, color: c.text,
+  },
+  fieldLabel: { fontFamily: fonts.sans, fontSize: 12, fontWeight: '500', color: c.text2, marginTop: 4, marginBottom: 6 },
+  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1.5, borderColor: c.line, backgroundColor: c.surface },
+  chipActive: { borderColor: c.accent, backgroundColor: c.accentBg },
+  chipText: { fontFamily: fonts.sans, fontSize: 13, color: c.text2 },
+  chipTextActive: { color: c.accentDk },
+  btnPrimary: { backgroundColor: c.text, borderRadius: radius.sm, paddingVertical: 15, alignItems: 'center' },
+  btnPrimaryText: { fontFamily: fonts.sansMedium, fontSize: 15, color: c.bg },
+});
+
 export default function TasksTab() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
   const [tab, setTab] = useState<'tarefas' | 'habitos'>('tarefas');
 
   const [tasks, saveTasks]           = useStorage<any[]>('tasks:items', []);
@@ -352,81 +435,3 @@ export default function TasksTab() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.bg },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.screenPad,
-    paddingTop: 24,
-    paddingBottom: 16,
-  },
-  heading: { fontFamily: fonts.serif, fontSize: 28, color: colors.text, lineHeight: 34 },
-  sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.text2, marginTop: 4 },
-  addBtn: { marginTop: 4 },
-  tabBar: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.screenPad,
-    paddingBottom: 16,
-    gap: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  tabBtn: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: radius.sm, backgroundColor: colors.bg2 },
-  tabBtnActive: { backgroundColor: colors.text },
-  tabText: { fontFamily: fonts.sans, fontSize: 14, fontWeight: '500', color: colors.text2 },
-  tabTextActive: { color: colors.bg },
-  content: { padding: spacing.screenPad, paddingBottom: 40 },
-  gap16: { gap: 16 },
-  progressWrap: { gap: 6 },
-  progressRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressText: { fontFamily: fonts.sans, fontSize: 11, color: colors.text3 },
-  sectionLabel: { fontFamily: fonts.sans, fontSize: 11, fontWeight: '600', color: colors.text3, letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 },
-  card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, overflow: 'hidden' },
-  divider: { height: 1, backgroundColor: colors.line, marginHorizontal: 16 },
-  taskRow: { flexDirection: 'row', alignItems: 'flex-start', padding: 14, gap: 8 },
-  taskBody: { flex: 1 },
-  taskMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, marginLeft: 32 },
-  taskDate: { fontFamily: fonts.sans, fontSize: 11, color: colors.text3, marginTop: 1 },
-  catTag: { backgroundColor: colors.bg2, borderRadius: 99, paddingHorizontal: 8, paddingVertical: 2 },
-  catTagText: { fontFamily: fonts.sans, fontSize: 11, color: colors.text3 },
-  iconBtn: { padding: 4 },
-  weekHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  weekDayLabels: { flex: 1, flexDirection: 'row', justifyContent: 'space-between' },
-  weekDayLabel: { fontFamily: fonts.sans, fontSize: 10, color: colors.text3, textAlign: 'center', flex: 1 },
-  weekDayLabelToday: { color: colors.accent, fontWeight: '600' },
-  habitRow: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
-  habitEmoji: { fontSize: 18, flexShrink: 0 },
-  habitBody: { flex: 1, minWidth: 0 },
-  habitName: { fontFamily: fonts.sans, fontSize: 14, color: colors.text, marginBottom: 8 },
-  habitDots: { flexDirection: 'row', justifyContent: 'space-between' },
-  habitDot: {
-    width: 24, height: 24, borderRadius: 12,
-    borderWidth: 1.5, borderColor: colors.line,
-    backgroundColor: colors.bg2, alignItems: 'center', justifyContent: 'center',
-  },
-  habitDotDone: { backgroundColor: colors.accent, borderColor: colors.accent },
-  habitDotToday: { borderColor: colors.accent, borderStyle: 'dashed' },
-  empty: { alignItems: 'center', paddingVertical: 40 },
-  emptyEmoji: { fontSize: 32, marginBottom: 12 },
-  emptyText: { fontFamily: fonts.sans, fontSize: 14, color: colors.text3 },
-  btnAdd: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    padding: 12, borderWidth: 1.5, borderColor: colors.line, borderRadius: radius.md, borderStyle: 'dashed',
-  },
-  btnAddText: { fontFamily: fonts.sans, fontSize: 14, color: colors.text2 },
-  input: {
-    backgroundColor: colors.bg2, borderWidth: 1, borderColor: colors.line, borderRadius: radius.sm,
-    paddingHorizontal: 16, paddingVertical: 13, fontFamily: fonts.sans, fontSize: 15, color: colors.text,
-  },
-  fieldLabel: { fontFamily: fonts.sans, fontSize: 12, fontWeight: '500', color: colors.text2, marginTop: 4, marginBottom: 6 },
-  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1.5, borderColor: colors.line, backgroundColor: colors.surface },
-  chipActive: { borderColor: colors.accent, backgroundColor: colors.accentBg },
-  chipText: { fontFamily: fonts.sans, fontSize: 13, color: colors.text2 },
-  chipTextActive: { color: colors.accentDk },
-  btnPrimary: { backgroundColor: colors.text, borderRadius: radius.sm, paddingVertical: 15, alignItems: 'center' },
-  btnPrimaryText: { fontFamily: fonts.sansMedium, fontSize: 15, color: colors.bg },
-});

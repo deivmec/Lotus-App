@@ -293,7 +293,7 @@ export default function Perfil() {
               <Text style={styles.switchLabel}>Modo escuro</Text>
               <Switch
                 value={darkMode === 'dark'}
-                onValueChange={v => setDarkMode(v ? 'dark' : 'light')}
+                onValueChange={v => { setDarkMode(v ? 'dark' : 'light'); }}
                 trackColor={{ false: colors.bg3, true: colors.accent }}
                 thumbColor={colors.surface}
               />

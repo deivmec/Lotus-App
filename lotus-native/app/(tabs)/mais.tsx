@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Icon from '../../components/Icon';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
+import { fonts, radius, spacing } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const SECTIONS = [
   { id: 'perfil',       icon: 'user',       label: 'Perfil & Configurações', desc: 'Conta, aparência e preferências' },
@@ -23,8 +24,78 @@ const SECTIONS = [
   { id: 'autocuidados', icon: 'leaf',       label: 'Autocuidados',           desc: 'Capilar, skincare e bem-estar' },
 ] as const;
 
+type C = { bg: string; bg2: string; bg3: string; line: string; surface: string; text: string; text2: string; text3: string; accent: string; accentBg: string; accentDk: string; green: string; greenBg: string; blue: string; blueBg: string; red: string; redBg: string; };
+const makeStyles = (c: C) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: c.bg },
+  container: { paddingHorizontal: spacing.screenPad },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  heading: {
+    fontFamily: fonts.serif,
+    fontSize: 28,
+    color: c.text,
+    lineHeight: 34,
+  },
+  sub: {
+    fontFamily: fonts.sans,
+    fontSize: 13,
+    color: c.text2,
+    marginTop: 4,
+  },
+  searchBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.line,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  list: { gap: 6 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    padding: 14,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.line,
+    borderRadius: radius.md,
+  },
+  iconWrap: {
+    width: 38,
+    height: 38,
+    backgroundColor: c.bg2,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  rowText: { flex: 1 },
+  rowLabel: {
+    fontFamily: fonts.sans,
+    fontSize: 14,
+    fontWeight: '500',
+    color: c.text,
+  },
+  rowDesc: {
+    fontFamily: fonts.sans,
+    fontSize: 12,
+    color: c.text3,
+    marginTop: 1,
+  },
+});
+
 export default function MaisTab() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
   return (
     <ScrollView
@@ -68,70 +139,3 @@ export default function MaisTab() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.bg },
-  container: { paddingHorizontal: spacing.screenPad },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  heading: {
-    fontFamily: fonts.serif,
-    fontSize: 28,
-    color: colors.text,
-    lineHeight: 34,
-  },
-  sub: {
-    fontFamily: fonts.sans,
-    fontSize: 13,
-    color: colors.text2,
-    marginTop: 4,
-  },
-  searchBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-  },
-  list: { gap: 6 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    padding: 14,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.md,
-  },
-  iconWrap: {
-    width: 38,
-    height: 38,
-    backgroundColor: colors.bg2,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  rowText: { flex: 1 },
-  rowLabel: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  rowDesc: {
-    fontFamily: fonts.sans,
-    fontSize: 12,
-    color: colors.text3,
-    marginTop: 1,
-  },
-});

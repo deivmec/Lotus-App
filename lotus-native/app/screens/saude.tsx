@@ -716,7 +716,7 @@ export default function SaudeScreen() {
                       });
                       const dayType = getDayType(dateStr, cycleInfo);
                       let bgColor = 'transparent';
-                      let textColor = colors.text;
+                      let textColor: string = colors.text;
                       if (isActual)             { bgColor = '#E53935'; textColor = '#fff'; }
                       else if (dayType === 'period')  bgColor = '#E5393555';
                       else if (dayType === 'fertile') bgColor = '#43A04755';
@@ -1296,7 +1296,7 @@ const styles = StyleSheet.create({
   moodLabel:       { fontFamily: fonts.sans, fontSize: 9, color: colors.text3, letterSpacing: 0.05 },
   moodDaySlot:     { flex: 1, alignItems: 'center' },
   moodDayEmoji:    { fontSize: 20, marginBottom: 4 },
-  moodDayLabel:    { fontFamily: fonts.sans, fontSize: 9, color: colors.text3, fontFamily: fonts.sansMedium },
+  moodDayLabel:    { fontFamily: fonts.sansMedium, fontSize: 9, color: colors.text3 },
 
   // ── Meds ──
   medRow: {
@@ -1309,13 +1309,13 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   pillToggleTaken: { backgroundColor: colors.green, borderColor: colors.green },
-  medName:    { fontFamily: fonts.sans, fontSize: 14, color: colors.text, fontFamily: fonts.sansMedium },
+  medName:    { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.text },
   tagsRow:    { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 3, flexWrap: 'wrap' },
   timeTag:    { backgroundColor: colors.accentBg, borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2 },
-  timeTagText:{ fontFamily: fonts.sans, fontSize: 12, color: colors.accent, fontFamily: fonts.sansMedium },
+  timeTagText:{ fontFamily: fonts.sansMedium, fontSize: 12, color: colors.accent },
   medDose:    { fontFamily: fonts.sans, fontSize: 12, color: colors.text3 },
   takenBadge: { backgroundColor: colors.greenBg, borderRadius: 99, paddingHorizontal: 8, paddingVertical: 2 },
-  takenBadgeText: { fontFamily: fonts.sans, fontSize: 12, color: colors.green, fontFamily: fonts.sansMedium },
+  takenBadgeText: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.green },
   iconBtn:    { padding: 4 },
 
   // ── Workouts ──
@@ -1379,7 +1379,7 @@ const styles = StyleSheet.create({
   },
   phaseRowEmoji:   { fontSize: 15, marginTop: 1 },
   phaseRowName:    { fontFamily: fonts.sansMedium, fontSize: 12 },
-  phaseRowRange:   { fontFamily: fonts.sans, color: colors.text3, fontFamily: fonts.sans },
+  phaseRowRange:   { fontFamily: fonts.sans, color: colors.text3 },
   phaseRowDesc:    { fontFamily: fonts.sans, fontSize: 11, color: colors.text2, marginTop: 3, lineHeight: 16 },
   phaseActiveDot:  { width: 7, height: 7, borderRadius: 3.5, marginTop: 3, flexShrink: 0 },
 

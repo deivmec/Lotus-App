@@ -1,10 +1,11 @@
 import { Tabs } from 'expo-router';
-import { colors, fonts } from '../../lib/theme';
-
-// Ícones SVG inline — copiar de src/components/Icon.jsx para RN com react-native-svg
-// Por enquanto usa texto até a conversão do Icon component
+import { fonts } from '../../lib/theme';
+import { useTheme } from '../../context/ThemeContext';
+import Icon from '../../components/Icon';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
@@ -27,10 +28,34 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.text3,
       }}
     >
-      <Tabs.Screen name="index"    options={{ title: 'Início' }} />
-      <Tabs.Screen name="tasks"    options={{ title: 'Tarefas' }} />
-      <Tabs.Screen name="pessoal"  options={{ title: 'Pessoal' }} />
-      <Tabs.Screen name="mais"     options={{ title: 'Mais' }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Início',
+          tabBarIcon: ({ color }) => <Icon name="home" size={20} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="tasks"
+        options={{
+          title: 'Tarefas',
+          tabBarIcon: ({ color }) => <Icon name="tasks" size={20} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="pessoal"
+        options={{
+          title: 'Pessoal',
+          tabBarIcon: ({ color }) => <Icon name="person" size={20} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="mais"
+        options={{
+          title: 'Mais',
+          tabBarIcon: ({ color }) => <Icon name="more" size={20} color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

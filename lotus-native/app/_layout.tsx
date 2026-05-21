@@ -13,8 +13,23 @@ import {
   InstrumentSerif_400Regular,
   InstrumentSerif_400Regular_Italic,
 } from '@expo-google-fonts/instrument-serif';
+import { ThemeProvider, useTheme } from '../context/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
+
+function RootLayoutInner() {
+  const { dark } = useTheme();
+  return (
+    <>
+      <StatusBar style={dark ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="screens/[id]" options={{ animation: 'slide_from_right' }} />
+      </Stack>
+    </>
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -33,15 +48,9 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="login" />
-        <Stack.Screen
-          name="screens/[id]"
-          options={{ animation: 'slide_from_right' }}
-        />
-      </Stack>
+      <ThemeProvider>
+        <RootLayoutInner />
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

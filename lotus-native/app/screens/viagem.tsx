@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   destinoEmoji: { fontSize: 24, flexShrink: 0 },
   destinoName: { fontFamily: fonts.sans, fontSize: 15, fontWeight: '500', color: colors.text },
   destinoMeta: { fontFamily: fonts.sans, fontSize: 11, color: colors.text3, marginTop: 2 },
-  destinoBody: { padding: 14, paddingTop: 0, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 14, gap: 8 } as any,
+  destinoBody: { paddingHorizontal: 14, paddingBottom: 14, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 14, gap: 8 } as any,
   destinoNotes: { fontFamily: fonts.sans, fontSize: 12, color: colors.text3, fontStyle: 'italic' },
   subLabel: { fontFamily: fonts.sans, fontSize: 10, fontWeight: '700', letterSpacing: 0.8, color: colors.text3, textTransform: 'uppercase' },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
