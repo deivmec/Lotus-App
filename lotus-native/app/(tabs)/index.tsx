@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import Modal from '../../components/Modal';
+import LotusLogo from '../../components/LotusLogo';
 import { useStorage } from '../../hooks/useStorage';
 import { fonts, radius, spacing } from '../../lib/theme';
 import { useTheme } from '../../context/ThemeContext';
@@ -1149,7 +1150,7 @@ export default function Home() {
               <Icon name="edit" size={14} color={colors.text2} />
               <Text style={[s.widgetsBtnText, { color: colors.text2 }]}>Widgets</Text>
             </TouchableOpacity>
-            <Text style={s.logo}>🪷</Text>
+            <LotusLogo size={28} color={colors.accent} />
           </View>
         </View>
 
