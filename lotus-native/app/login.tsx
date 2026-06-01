@@ -15,6 +15,7 @@ import { Redirect } from 'expo-router';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import Icon from '../components/Icon';
+import LotusLogo from '../components/LotusLogo';
 import { fonts, radius, spacing } from '../lib/theme';
 import { useTheme } from '../context/ThemeContext';
 
@@ -79,7 +80,7 @@ export default function LoginScreen() {
         {/* Logo */}
         <View style={styles.logoRow}>
           <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>🪷</Text>
+            <LotusLogo size={36} color={colors.accent} />
           </View>
           <View>
             <Text style={styles.appName}>Lotus</Text>
